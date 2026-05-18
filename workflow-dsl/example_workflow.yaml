@@ -1,0 +1,20 @@
+workflow:
+  name: regulated-approval
+  classification: regulated
+
+  steps:
+    - id: validate_policy
+      type: middleware_check
+
+    - id: classify_request
+      type: classification
+
+    - id: execute_model
+      type: inference
+      provider: azure_ai_foundry
+
+    - id: human_review
+      type: approval
+
+    - id: finalize
+      type: completion
