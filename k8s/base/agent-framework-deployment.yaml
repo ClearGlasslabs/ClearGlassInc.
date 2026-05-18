@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-framework
+  namespace: clearglass
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent-framework
+  template:
+    metadata:
+      labels:
+        app: agent-framework
+    spec:
+      containers:
+      - name: agent-framework
+        image: clearglass/agent-framework:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ENVIRONMENT
+          value: production
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-framework-service
+  namespace: clearglass
+spec:
+  selector:
+    app: agent-framework
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
