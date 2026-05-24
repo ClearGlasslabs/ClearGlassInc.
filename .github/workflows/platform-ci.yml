@@ -4,13 +4,21 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
+    name: Validate platform baseline
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -18,15 +26,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.6.6'
 
-      - name: Validate Python
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Validate Python syntax
         run: |
           python -m py_compile middleware/policy-engine/policy_engine.py
           python -m py_compile orchestration/workflow-examples/regulated_approval_workflow.py
 
       - name: Terraform format check
-        run: |
-          terraform fmt -check infra/terraform/azure-foundation/
+        run: terraform fmt -check -recursive infra/terraform/azure-foundation/
