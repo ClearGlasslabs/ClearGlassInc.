@@ -90,3 +90,99 @@ Describe how the repository can become more intelligent, secure, resilient, auto
 ## Definition of done
 
 A change is complete only when it is implemented, tested, documented, observable, reversible, security-reviewed in proportion to risk, and deployed through the repository's approved workflow.
+
+## Expanded platform mandate
+
+The platform must be cleanly architected, deeply automated, AI-enabled, secure by design, observable end to end, resilient under failure, scalable, extensible, operationally visible, modular, future-proof, self-healing where justified, policy-driven, auditable, and ready for long-term strategic growth.
+
+### Additional audit requirements
+
+Review and document:
+
+- Missing approval workflows and separation-of-duty controls
+- Missing policy enforcement points and policy-decision evidence
+- Missing tenant, user, tool, model, and workflow quotas
+- Missing cost, concurrency, rate, and resource-consumption controls
+- Missing traceability for critical reads, writes, approvals, deployments, model decisions, and tool calls
+- Missing risk classification for automated actions
+- Missing data-retention, deletion, provenance, and lineage controls
+- Missing incident escalation, recovery ownership, and tested restoration paths
+- Missing safe-degradation behavior when AI, storage, identity, network, or third-party services fail
+- Missing controls against prompt injection, tool abuse, data exfiltration, confused-deputy behavior, and excessive agency
+
+### Advanced capability priorities
+
+Add only when supported by a verified use case, owner, threat model, acceptance criteria, and rollback plan:
+
+- Context-aware agents with bounded tools, per-tool authorization, scoped credentials, timeouts, budgets, and human approval gates
+- Retrieval and knowledge layers with provenance, access-filtered retrieval, freshness indicators, citation verification, and deletion propagation
+- Explicit short-term state and durable memory with retention limits, tenant isolation, consent, redaction, and auditable mutation
+- Event-driven workflows with versioned schemas, idempotency keys, replay safety, ordering rules, dead-letter queues, and backpressure
+- Distributed tracing that connects user intent, policy decisions, model calls, tool calls, data access, workflow state, and deployment version
+- Anomaly detection with explainable signals, calibrated thresholds, suppression rules, escalation ownership, and feedback loops
+- Feature flags and progressive delivery with named owners, expiry dates, cohort controls, kill switches, canaries, and automatic rollback
+- Compatibility layers and stable contracts with consumer-driven tests and documented deprecation windows
+- Self-healing limited to deterministic, observable, reversible recovery actions with bounded retries and escalation on exhaustion
+- Operational dashboards backed by real telemetry; never simulated production health or fabricated metrics
+
+## Automation risk model
+
+Every automated action must be assigned a risk tier before execution:
+
+| Tier | Action class | Default control |
+|---|---|---|
+| R0 | Read-only, no sensitive data, no side effects | Logged execution within quota |
+| R1 | Advisory output or reversible local change | Validation, provenance, and operator visibility |
+| R2 | Material data, configuration, or workflow mutation | Explicit authorization, idempotency, audit event, and rollback |
+| R3 | External communication, release, privileged access, destructive action, financial or legal effect | Named human approval, separation of duties where practical, preflight evidence, and post-action verification |
+| R4 | Safety-critical, irreversible, or authority-expanding action | Deny by default unless separately designed, reviewed, and formally authorized |
+
+Risk is determined by impact, reversibility, data sensitivity, privilege, blast radius, external effect, uncertainty, and failure detectability. A model cannot lower its own action tier or approve its own request.
+
+## Policy and approval architecture
+
+Critical actions must pass through a policy enforcement point that records:
+
+- Authenticated actor and workload identity
+- Requested action, resource, purpose, tenant, environment, and risk tier
+- Policy version, decision, rationale, obligations, and approval requirements
+- Input provenance, model and prompt version when applicable
+- Idempotency key, trace ID, timestamps, result, and rollback reference
+
+Policies are version-controlled, tested, deny by default at trust boundaries, and deployed progressively. Emergency overrides must be time-limited, attributable, narrowly scoped, monitored, and reviewed after use.
+
+## Quotas and resource governance
+
+Enforce configurable limits for requests, tokens, tool calls, concurrency, storage, queue depth, retries, execution time, external API cost, and data export. Quota decisions must be observable and attributable. Exhaustion must fail predictably, preserve state safely, and provide an actionable recovery path.
+
+## AI security boundaries
+
+- Treat retrieved content, user input, external pages, files, tool output, and model output as untrusted.
+- Separate instructions from data and prevent retrieved content from silently changing system policy.
+- Allowlist tools and destinations; validate structured arguments before execution.
+- Issue short-lived, least-privilege credentials at execution time and never expose secrets to model context unnecessarily.
+- Apply output validation, data-loss prevention, egress controls, and policy checks after the model and before side effects.
+- Preserve provenance for claims and require verified citations for evidence-sensitive output.
+- Evaluate groundedness, task success, refusal quality, policy compliance, injection resistance, privacy leakage, latency, and cost.
+- Provide deterministic kill switches, safe modes, and rollback for agent workflows.
+
+## Implementation decision record
+
+For each proposed upgrade, provide:
+
+1. Purpose and measurable outcome
+2. Current evidence and repository constraint
+3. Architecture and rejected alternatives
+4. Dependencies, owners, trust boundaries, and data classification
+5. Threats, failure modes, blast radius, and operational cost
+6. Test strategy, evaluation set, acceptance criteria, and observability
+7. Migration, compatibility, rollout, rollback, and deprecation sequence
+8. Residual risk and explicit approval required
+
+## Refactor and removal discipline
+
+Identify weak, duplicate, obsolete, slow, or unsafe code, but do not remove it merely because replacement code exists. First prove usage, ownership, dependencies, migration safety, and rollback. Deprecate with evidence and a defined window. Remove only after consumers are migrated and the approved change demonstrates no unacceptable regression.
+
+## Strategic direction
+
+Evolve ClearGlassInc into a high-assurance platform whose intelligence is measurable, whose automation is bounded, whose decisions are explainable, whose controls are enforceable, and whose operation remains recoverable under pressure. Autonomy is earned through evidence, limited by policy, and revoked automatically when confidence, security, or service objectives fall below approved thresholds.
