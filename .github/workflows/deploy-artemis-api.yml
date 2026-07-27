@@ -1,0 +1,77 @@
+name: Deploy Artemis API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "clearglassinc-artemis/apps/api-node/**"
+      - "render.yaml"
+      - ".github/workflows/deploy-artemis-api.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "clearglassinc-artemis/apps/api-node/**"
+      - "render.yaml"
+      - ".github/workflows/deploy-artemis-api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: artemis-api-production
+  cancel-in-progress: false
+
+env:
+  APP_DIR: clearglassinc-artemis/apps/api-node
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.APP_DIR }}
+        run: npm install
+
+      - name: Run tests
+        working-directory: ${{ env.APP_DIR }}
+        run: npm test
+
+      - name: Build production container
+        run: docker build --tag clearglass-artemis-api:${{ github.sha }} "${APP_DIR}"
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - name: Require Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL is not configured." >&2
+            exit 1
+          fi
+
+      - name: Trigger exact-commit deployment
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          separator='?'
+          case "$RENDER_DEPLOY_HOOK_URL" in *\?*) separator='&' ;; esac
+          curl --fail --show-error --silent --request POST \
+            "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${GITHUB_SHA}"
