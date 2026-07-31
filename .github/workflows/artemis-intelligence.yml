@@ -1,0 +1,54 @@
+name: Artemis Intelligence Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "artemis/intelligence/**"
+      - ".github/workflows/artemis-intelligence.yml"
+  pull_request:
+    paths:
+      - "artemis/intelligence/**"
+      - ".github/workflows/artemis-intelligence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: artemis-intelligence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install validation dependencies
+        run: python -m pip install --upgrade pip pytest ruff mypy
+
+      - name: Compile source
+        run: python -m compileall -q artemis/intelligence
+
+      - name: Lint
+        run: ruff check artemis/intelligence
+
+      - name: Type check
+        run: mypy --strict artemis/intelligence/core.py
+
+      - name: Test
+        run: pytest artemis/intelligence/test_core.py -q
