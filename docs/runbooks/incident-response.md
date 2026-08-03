@@ -177,3 +177,14 @@ The platform must support emergency runtime controls:
 3. Autonomous execution requires bounded recovery controls.
 4. Human escalation is mandatory for high-risk containment.
 5. Platform resilience must preserve operational continuity.
+
+---
+
+# 8. Website/API Evidence and Key Revocation Checklist
+
+1. Record incident commander, UTC start, detection source, affected tenant/route, and legal/privacy liaison. Preserve raw logs read-only with cryptographic hashes and chain-of-custody entries; restrict evidence by need-to-know.
+2. Revoke affected API tokens, provider webhook secrets, deployment credentials, signing keys, and active signed URLs. Rotate from a clean administrative device using dual approval for production roots. Do not print values in tickets or logs.
+3. Temporarily deny the affected route at the gateway/WAF, retain non-destructive evidence, and prohibit hacking back, device interference, extortion, or covert unlawful tracking.
+4. Determine whether personal data, payment events, proprietary content, coalition data, or regulated records were affected. Counsel/privacy owners decide notification duties and timelines; do not claim an incident is non-reportable without that review.
+5. Restore only from a verified, encrypted backup/image; check image and document SHA-256 values, replay authorized events idempotently, validate policy/authentication/audit controls, and obtain service-owner approval.
+6. Test restore procedures quarterly and key revocation semi-annually. Track actual RPO/RTO results rather than treating targets as certifications.

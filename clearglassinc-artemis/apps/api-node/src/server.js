@@ -3,8 +3,14 @@ import crypto from "node:crypto";
 import Stripe from "stripe";
 import { redis } from "./redis.js";
 import { publish } from "./bus.js";
+import { rateLimit, requireRole, requireTrustedOrigin, securityHeaders, validEmail, validIdentifier, verifyHmac } from "./security.js";
 
 const app = express();
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
+app.use(securityHeaders);
+app.use(rateLimit({ limit: 120 }));
+
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null;
@@ -71,7 +77,7 @@ app.post("/v1/webhooks/stripe", express.raw({ type: "application/json" }), async
 });
 
 // Hosted Checkout keeps card data off ClearGlass infrastructure.
-app.post("/v1/billing/checkout-sessions", express.json({ limit: "16kb" }), async (req, res) => {
+app.post("/v1/billing/checkout-sessions", requireTrustedOrigin, rateLimit({ limit: 10 }), express.json({ limit: "16kb" }), async (req, res) => {
   if (!requireStripe(res)) return;
 
   const { priceId, quantity = 1, customerEmail, clientReferenceId } = req.body ?? {};
@@ -83,7 +89,7 @@ app.post("/v1/billing/checkout-sessions", express.json({ limit: "16kb" }), async
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 25) {
     return res.status(400).json({ error: "invalid_quantity" });
   }
-  if (customerEmail !== undefined && typeof customerEmail !== "string") {
+  if (customerEmail !== undefined && !validEmail(customerEmail)) {
     return res.status(400).json({ error: "invalid_customer_email" });
   }
 
@@ -122,7 +128,7 @@ app.post("/v1/billing/checkout-sessions", express.json({ limit: "16kb" }), async
 // Gumroad remains separate; do not treat its signature as Stripe-compatible.
 app.post("/v1/webhooks/gumroad", express.raw({ type: "application/json" }), async (req, res) => {
   const signature = req.headers["gumroad-signature"];
-  if (!signature) return res.status(400).send("missing signature");
+  if (!verifyHmac(req.body, signature, process.env.GUMROAD_WEBHOOK_SECRET)) return res.status(400).send("invalid signature");
 
   let event;
   try {
@@ -139,25 +145,29 @@ app.post("/v1/webhooks/gumroad", express.raw({ type: "application/json" }), asyn
 });
 
 // --- Event ingest ----------------------------------------------------------
-app.post("/v1/events/ingest", express.json(), async (req, res) => {
+app.post("/v1/events/ingest", requireRole("ingest"), rateLimit({ limit: 30 }), express.json({ limit: "64kb", strict: true }), async (req, res) => {
+  if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) return res.status(400).json({ error: "invalid_event" });
   const id = req.body.id ?? crypto.randomUUID();
+  if (!validIdentifier(id)) return res.status(400).json({ error: "invalid_event_id" });
   await publish("intel.raw.events", { ...req.body, id });
   res.status(202).json({ accepted: true, id });
 });
 
 // --- Approval gates (stubs) ------------------------------------------------
-app.post("/v1/actions/:id/approve", express.json(), async (req, res) => {
-  await publish("intel.case.actions", { action_id: req.params.id, decision: "approved", actor: req.body.actor });
+app.post("/v1/actions/:id/approve", requireRole("operator"), express.json({ limit: "4kb" }), async (req, res) => {
+  if (!validIdentifier(req.params.id)) return res.status(400).json({ error: "invalid_action_id" });
+  await publish("intel.case.actions", { action_id: req.params.id, decision: "approved", actor: req.auth.actor });
   res.json({ ok: true });
 });
-app.post("/v1/actions/:id/reject", express.json(), async (req, res) => {
-  await publish("intel.case.actions", { action_id: req.params.id, decision: "rejected", actor: req.body.actor });
+app.post("/v1/actions/:id/reject", requireRole("operator"), express.json({ limit: "4kb" }), async (req, res) => {
+  if (!validIdentifier(req.params.id)) return res.status(400).json({ error: "invalid_action_id" });
+  await publish("intel.case.actions", { action_id: req.params.id, decision: "rejected", actor: req.auth.actor });
   res.json({ ok: true });
 });
 
 app.get("/healthz", (_req, res) => res.json({ ok: true, stripeConfigured: Boolean(stripe) }));
 
 const port = process.env.PORT ?? 8080;
-app.listen(port, () => console.log(`api-node listening on :${port}`));
+if (process.env.NODE_ENV !== "test") app.listen(port, () => console.log(`api-node listening on :${port}`));
 
 export { app, allowedPriceIds, safeCheckoutUrl };
