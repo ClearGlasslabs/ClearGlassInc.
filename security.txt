@@ -1,0 +1,6 @@
+Contact: mailto:security@clearglassinc.com
+Preferred-Languages: en
+Canonical: https://www.clearglassinc.com/.well-known/security.txt
+Policy: https://www.clearglassinc.com/legal.html#security
+Acknowledgments: https://www.clearglassinc.com/legal.html#security
+Expires: 2027-08-03T23:59:59Z

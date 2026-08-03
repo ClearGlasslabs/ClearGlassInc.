@@ -1,5 +1,5 @@
-// Thin event-bus shim. Swap for a Kafka/Redpanda producer in production.
+// Event metadata only is logged. Configure a durable bus producer in production.
 export async function publish(topic, message) {
-  // eslint-disable-next-line no-console
-  console.log(`[bus] ${topic}`, JSON.stringify(message));
+  const safeMetadata = { id: message?.id ?? message?.event?.id ?? message?.action_id, type: message?.event?.type, decision: message?.decision };
+  console.log(JSON.stringify({ event: "bus.publish", topic, metadata: safeMetadata }));
 }

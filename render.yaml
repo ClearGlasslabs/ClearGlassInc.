@@ -29,6 +29,16 @@ services:
         value: https://www.clearglassinc.com/payment/success?session_id={CHECKOUT_SESSION_ID}
       - key: STRIPE_CANCEL_URL
         value: https://www.clearglassinc.com/payment/cancelled
+      - key: ARTEMIS_ADMIN_API_TOKEN
+        sync: false
+      - key: ARTEMIS_OPERATOR_API_TOKEN
+        sync: false
+      - key: ARTEMIS_INGEST_API_TOKEN
+        sync: false
+      - key: GUMROAD_WEBHOOK_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://www.clearglassinc.com
 
   - type: keyvalue
     name: clearglass-artemis-redis

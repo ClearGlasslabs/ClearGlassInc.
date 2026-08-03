@@ -1,0 +1,42 @@
+name: Security Baseline
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v5
+        with: { node-version: "20" }
+      - name: Python SAST and dependency audit
+        run: |
+          python -m pip install --disable-pip-version-check bandit pip-audit
+          bandit -q -r artemis gateway middleware orchestration registry routing telemetry
+          pip-audit
+      - name: Node clean install, tests, and production dependency audit
+        working-directory: clearglassinc-artemis/apps/api-node
+        run: |
+          npm install
+          npm test
+          npm audit --omit=dev --audit-level=high
+      - name: Secret-pattern and production-file guard
+        shell: bash
+        run: |
+          ! git grep -nEI '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|sk_live_[A-Za-z0-9]{16,}|AKIA[0-9A-Z]{16})' -- ':!*.md'
+          ! find . -type f \( -name '.env' -o -name '*.map' -o -name '*.pem' -o -name '*.key' \) -not -path './.git/*' -print -quit | grep .
+      - name: Verify release checksums
+        run: sha256sum -c releases/SHA256SUMS
