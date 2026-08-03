@@ -175,6 +175,78 @@ html,body{background:var(--bg);color:var(--text2);font-family:var(--mono);font-s
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:var(--panel)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ================================================================
+   NEON PULSE SYSTEM
+   Reusable, composited lighting primitives for command surfaces.
+   Apply .neon-surface / .neon-action / .neon-divider to new UI.
+================================================================ */
+:root{
+  --neon-cyan:#25d9ff;--neon-violet:#8b5cff;--neon-magenta:#ff3fc7;
+  --neon-white:#dff8ff;--neon-blue:#2787ff;
+  --neon-rgb:37,217,255;--neon-accent:var(--neon-cyan);
+  --neon-pulse-duration:5.8s;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:1000;pointer-events:none;
+  background:
+    radial-gradient(ellipse 44% 28% at 12% 6%,rgba(39,135,255,.07),transparent 72%),
+    radial-gradient(ellipse 38% 32% at 88% 38%,rgba(139,92,255,.055),transparent 75%),
+    linear-gradient(115deg,transparent 28%,rgba(37,217,255,.018) 50%,transparent 72%);
+  mix-blend-mode:screen;animation:neon-atmosphere 12s ease-in-out infinite alternate;
+}
+.neon-surface,.panel,#nexus-bar{position:relative;isolation:isolate;overflow:hidden}
+.neon-surface::before,.panel::before,#nexus-bar::before{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  border:1px solid rgba(var(--neon-rgb),.16);
+  box-shadow:inset 0 0 12px rgba(var(--neon-rgb),.035),inset 0 1px 0 rgba(223,248,255,.075);
+  opacity:.58;animation:neon-surface-pulse var(--neon-pulse-duration) ease-in-out infinite;
+}
+.panel:nth-child(3n+2){--neon-rgb:139,92,255;--neon-pulse-duration:6.7s}
+.panel:nth-child(3n){--neon-rgb:255,63,199;--neon-pulse-duration:7.4s}
+.panel:hover{border-color:rgba(37,217,255,.36);box-shadow:0 0 18px rgba(37,217,255,.07);transition:border-color .45s ease,box-shadow .45s ease}
+.panel:hover::before{opacity:.92}
+.ph{box-shadow:inset 0 -1px 0 rgba(var(--neon-rgb),.07)}
+.sec-hdr,.neon-divider{
+  border-top-color:transparent;
+  background-image:linear-gradient(90deg,rgba(37,217,255,.75),rgba(139,92,255,.28) 42%,rgba(255,63,199,.12) 70%,transparent);
+  background-size:100% 1px;background-repeat:no-repeat;background-position:top left;
+  filter:drop-shadow(0 -2px 5px rgba(37,217,255,.12));
+}
+#ticker-wrap{
+  border-bottom-color:rgba(37,217,255,.38);
+  box-shadow:0 1px 10px rgba(37,217,255,.12),0 5px 24px rgba(139,92,255,.04);
+}
+#ticker-label,#nx-brand,.pt{text-shadow:0 0 8px currentColor}
+#nexus-bar{
+  border-color:rgba(37,217,255,.42);
+  box-shadow:0 0 12px rgba(37,217,255,.1),0 0 28px rgba(139,92,255,.055),inset 0 0 18px rgba(37,217,255,.025);
+  animation:neon-command-pulse 6.4s ease-in-out infinite;
+}
+.ac-tab.on,.cam-flt-btn.on,.neon-action,.b-live{
+  box-shadow:0 0 7px color-mix(in srgb,currentColor 38%,transparent),inset 0 0 7px color-mix(in srgb,currentColor 8%,transparent);
+  text-shadow:0 0 6px currentColor;animation:neon-action-pulse 4.8s ease-in-out infinite;
+}
+.live-dot,.nd,.cam-st-dot{will-change:opacity,box-shadow}
+.cam:hover{box-shadow:0 0 12px rgba(255,170,0,.16),inset 0 0 8px rgba(37,217,255,.06);transition:border-color .35s ease,box-shadow .35s ease}
+
+@keyframes neon-surface-pulse{
+  0%,100%{opacity:.42;box-shadow:inset 0 0 9px rgba(var(--neon-rgb),.025),inset 0 1px 0 rgba(223,248,255,.05)}
+  50%{opacity:.82;box-shadow:inset 0 0 17px rgba(var(--neon-rgb),.065),inset 0 1px 0 rgba(223,248,255,.12)}
+}
+@keyframes neon-action-pulse{
+  0%,100%{filter:brightness(1);box-shadow:0 0 5px color-mix(in srgb,currentColor 28%,transparent),inset 0 0 5px color-mix(in srgb,currentColor 6%,transparent)}
+  50%{filter:brightness(1.1);box-shadow:0 0 11px color-mix(in srgb,currentColor 44%,transparent),0 0 20px color-mix(in srgb,currentColor 10%,transparent),inset 0 0 8px color-mix(in srgb,currentColor 10%,transparent)}
+}
+@keyframes neon-command-pulse{
+  0%,100%{box-shadow:0 0 10px rgba(37,217,255,.08),0 0 24px rgba(139,92,255,.04),inset 0 0 14px rgba(37,217,255,.02)}
+  50%{box-shadow:0 0 17px rgba(37,217,255,.16),0 0 34px rgba(139,92,255,.075),inset 0 0 22px rgba(37,217,255,.045)}
+}
+@keyframes neon-atmosphere{from{opacity:.58;transform:scale(1)}to{opacity:1;transform:scale(1.025)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+  body::before{transform:none;opacity:.7}.panel::before,#nexus-bar::before{opacity:.62}
+}
 </style>
 </head>
 <body>
