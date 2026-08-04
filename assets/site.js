@@ -10,6 +10,14 @@ const PROXY = 'https://corsproxy.io/?';
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[char]));
 function safeHttpsUrl(value) { try { const u = new URL(value); return u.protocol === 'https:' ? u.href : ''; } catch { return ''; } }
+async function fetchChecked(url, options = {}) {
+  const signal = options.signal || (typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined);
+  const response = await fetch(url, {...options, signal});
+  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+  return response;
+}
+const fetchJSON = url => fetchChecked(url).then(response => response.json());
+const fetchText = url => fetchChecked(url).then(response => response.text());
 
 /* ─────────── CLOCK ─────────── */
 function tick() {
@@ -20,21 +28,27 @@ function tick() {
 setInterval(tick, 1000); tick();
 
 /* ─────────── MAIN MAP ─────────── */
-const map = L.map('map',{zoomControl:true,attributionControl:true}).setView([LOC.lat,LOC.lon],11);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-  attribution:'© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains:'abcd',maxZoom:19
-}).addTo(map);
-L.circleMarker([LOC.lat,LOC.lon],{
-  color:'#00ff88',fillColor:'#00ff88',fillOpacity:.85,radius:7,weight:2
-}).addTo(map).bindPopup('<b>Burlington, ON</b>');
+let map = null;
+if (window.L) {
+  map = L.map('map',{zoomControl:true,attributionControl:true}).setView([LOC.lat,LOC.lon],11);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd',maxZoom:19
+  }).addTo(map);
+  L.circleMarker([LOC.lat,LOC.lon],{
+    color:'#00ff88',fillColor:'#00ff88',fillOpacity:.85,radius:7,weight:2
+  }).addTo(map).bindPopup('<b>Burlington, ON</b>');
+} else {
+  document.getElementById('map').textContent = 'MAP UNAVAILABLE · LIVE DATA FEEDS REMAIN ACTIVE';
+  document.getElementById('map').classList.add('map-fallback');
+}
 
 /* ─────────── ISS MAP ─────────── */
-const issMap = L.map('iss-map',{
+const issMap = window.L ? L.map('iss-map',{
   zoomControl:false,attributionControl:false,
   dragging:false,scrollWheelZoom:false,touchZoom:false
-}).setView([0,0],1);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+}).setView([0,0],1) : null;
+if (issMap) L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
   subdomains:'abcd',maxZoom:6
 }).addTo(issMap);
 let issMarker = null;
@@ -56,7 +70,7 @@ async function fetchWeather() {
       `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,`+
       `wind_direction_10m,surface_pressure,precipitation,weather_code&wind_speed_unit=kmh`+
       `&timezone=America%2FToronto`;
-    const d = await fetch(url).then(r=>r.json());
+    const d = await fetchJSON(url);
     const c = d.current;
     const temp = Math.round(c.temperature_2m);
     document.getElementById('wx-temp').textContent = temp+'°C';
@@ -86,7 +100,7 @@ async function fetchAQ() {
   try {
     const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LOC.lat}&longitude=${LOC.lon}`+
       `&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,european_aqi`;
-    const d = await fetch(url).then(r=>r.json());
+    const d = await fetchJSON(url);
     const c = d.current;
     const aqi = Math.round(c.european_aqi||0);
     const [cat,col] = aqiCat(aqi);
@@ -107,8 +121,8 @@ async function fetchAQ() {
 let allAC=[], acMode='all';
 function setAcTab(mode, el) {
   acMode = mode;
-  document.querySelectorAll('.ac-tab').forEach(t=>t.classList.remove('on'));
-  if(el) el.classList.add('on');
+  document.querySelectorAll('.ac-tab').forEach(t=>{ t.classList.remove('on'); t.setAttribute('aria-pressed','false'); });
+  if(el) { el.classList.add('on'); el.setAttribute('aria-pressed','true'); }
   renderAC();
 }
 function renderAC() {
@@ -122,16 +136,16 @@ function renderAC() {
     const spd  = a[9]!=null ? Math.round(a[9]*3.6)+' km/h' : '–';
     const cty  = a[2]||'';
     return `<div class="aci">
-      <span class="ac-call">✈ ${call}</span>
+      <span class="ac-call">✈ ${escapeHtml(call)}</span>
       <span class="ac-alt">${alt}</span>
-      <span class="ac-info">${spd} · ${cty}</span>
+      <span class="ac-info">${escapeHtml(spd)} · ${escapeHtml(cty)}</span>
     </div>`;
   }).join('');
 }
 async function fetchAirspace() {
   try {
     const url = `https://opensky-network.org/api/states/all?lamin=42.8&lomin=-81.0&lamax=44.2&lomax=-78.5`;
-    const d = await fetch(url).then(r=>r.json());
+    const d = await fetchJSON(url);
     allAC = (d.states||[]).filter(a=>a[5]!=null&&a[6]!=null).sort((a,b)=>(b[7]||0)-(a[7]||0));
     document.getElementById('ac-sub').textContent = allAC.length+' AIRCRAFT IN SECTOR · SOUTHERN ONTARIO';
     document.getElementById('ac-sub').classList.remove('pulse');
@@ -146,7 +160,7 @@ async function fetchAirspace() {
 /* ─────────── SEISMIC ─────────── */
 async function fetchSeismic() {
   try {
-    const d = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson').then(r=>r.json());
+    const d = await fetchJSON('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson');
     const qs = d.features||[];
     const maxMag = qs.reduce((m,q)=>Math.max(m,q.properties.mag||0),0);
     document.getElementById('seis-cnt').textContent = qs.length;
@@ -162,7 +176,7 @@ async function fetchSeismic() {
       const cls = mag>=5?'m5':mag>=4?'m4':mag>=3?'m3':'m2';
       return `<div class="eqi">
         <span class="eq-m ${cls}">M${mag.toFixed(1)}</span>
-        <span class="eq-loc">${q.properties.place||'Unknown'}</span>
+        <span class="eq-loc">${escapeHtml(q.properties.place||'Unknown')}</span>
         <span class="eq-t">${ago(q.properties.time)}</span>
       </div>`;
     }).join('');
@@ -179,8 +193,8 @@ function ago(ms) {
 async function fetchSpaceWeather() {
   try {
     const [kpRes, xrRes] = await Promise.all([
-      fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json'),
-      fetch('https://services.swpc.noaa.gov/json/goes/primary/xrays-6-hour.json')
+      fetchChecked('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json'),
+      fetchChecked('https://services.swpc.noaa.gov/json/goes/primary/xrays-6-hour.json')
     ]);
     const kpData = await kpRes.json();
     const xrData = await xrRes.json();
@@ -221,7 +235,7 @@ async function fetchSpaceWeather() {
 /* ─────────── ISS ─────────── */
 async function fetchISS() {
   try {
-    const d = await fetch('https://api.wheretheiss.at/v1/satellites/25544').then(r=>r.json());
+    const d = await fetchJSON('https://api.wheretheiss.at/v1/satellites/25544');
     const lat = parseFloat(d.latitude), lon = parseFloat(d.longitude);
     const latS = (lat>=0?lat.toFixed(3)+'°N':Math.abs(lat).toFixed(3)+'°S');
     const lonS = (lon>=0?lon.toFixed(3)+'°E':Math.abs(lon).toFixed(3)+'°W');
@@ -236,13 +250,13 @@ async function fetchISS() {
     ].map(([l,v])=>`<div class="issr"><span class="issl">${l}</span><span class="issv">${v}</span></div>`).join('');
 
     const pos = [lat, lon];
-    if (!issMarker) {
+    if (issMap && !issMarker) {
       const icon = L.divIcon({html:'<div style="font-size:18px;text-shadow:0 0 8px #fff">🛸</div>',className:'',iconSize:[22,22],iconAnchor:[11,11]});
       issMarker = L.marker(pos,{icon}).addTo(issMap).bindPopup('ISS');
-    } else {
+    } else if (issMarker) {
       issMarker.setLatLng(pos);
     }
-    issMap.setView(pos,1);
+    issMap?.setView(pos,1);
   } catch(e) {
     setBadge('iss-badge','NO SIGNAL','b-off');
     document.getElementById('iss-coord').textContent = 'SIGNAL LOST';
@@ -257,7 +271,7 @@ async function fetchPowerGrid() {
   // Try IESO realtime XML
   const ieso = 'http://reports.ieso.ca/public/RealtimeConstTotals/PUB_RealtimeConstTotals.xml';
   try {
-    const txt = await fetch(PROXY + encodeURIComponent(ieso)).then(r=>r.text());
+    const txt = await fetchText(PROXY + encodeURIComponent(ieso));
     const xml = new DOMParser().parseFromString(txt,'text/xml');
     const totals = {};
     xml.querySelectorAll('FuelTotal').forEach(ft=>{
@@ -271,7 +285,7 @@ async function fetchPowerGrid() {
   // Fallback: try the 5-minute supply XML
   const ieso2 = 'http://reports.ieso.ca/public/GenOutputCapability/PUB_GenOutputCapability.xml';
   try {
-    const txt = await fetch(PROXY + encodeURIComponent(ieso2)).then(r=>r.text());
+    const txt = await fetchText(PROXY + encodeURIComponent(ieso2));
     const xml = new DOMParser().parseFromString(txt,'text/xml');
     const totals = {};
     xml.querySelectorAll('FuelSum,FuelTotal').forEach(ft=>{
@@ -315,7 +329,7 @@ const COINS = [
 async function fetchCrypto() {
   try {
     const ids = COINS.map(c=>c.id).join(',');
-    const d = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`).then(r=>r.json());
+    const d = await fetchJSON(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
     setBadge('crypto-badge','LIVE','b-live');
     if(d.bitcoin) {
       const bt = `CRYPTO — BTC $${d.bitcoin.usd.toLocaleString()} · ETH $${(d.ethereum?.usd||0).toLocaleString()}`;
@@ -351,7 +365,7 @@ const FX_PAIRS = [
 ];
 async function fetchFX() {
   try {
-    const d = await fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json());
+    const d = await fetchJSON('https://open.er-api.com/v6/latest/USD');
     if(d.result!=='success') throw new Error('fail');
     setBadge('fx-badge','LIVE','b-live');
     document.getElementById('fx-list').innerHTML = FX_PAIRS.filter(p=>d.rates[p.q]).map(p=>{
@@ -366,8 +380,8 @@ let allCams=[], camFilter='ALL';
 
 function filterCams(f, el) {
   camFilter = f;
-  document.querySelectorAll('.cam-flt-btn').forEach(b=>b.classList.remove('on'));
-  if(el) el.classList.add('on');
+  document.querySelectorAll('[data-camera-filter]').forEach(b=>{ b.classList.remove('on'); b.setAttribute('aria-pressed','false'); });
+  if(el) { el.classList.add('on'); el.setAttribute('aria-pressed','true'); }
   renderCams();
 }
 
@@ -412,7 +426,7 @@ async function fetchCameras() {
 async function try511() {
   try {
     const url = 'https://511on.ca/api/v2/cameras?format=json&lang=en&limit=150';
-    const txt = await fetch(PROXY + encodeURIComponent(url)).then(r=>r.text());
+    const txt = await fetchText(PROXY + encodeURIComponent(url));
     const data = JSON.parse(txt);
     if(!Array.isArray(data)||!data.length) return false;
 
@@ -463,14 +477,15 @@ function renderCamsFallback() {
   renderCams();
 }
 
-function refreshCams() {
+async function refreshCams() {
   document.getElementById('cam-refresh').textContent='↻ …';
   // Force-reload images with cache-buster
   document.querySelectorAll('#cam-grid img').forEach(img=>{
     const src = img.src.replace(/[?&]t=\d+/,'');
     img.src = src+(src.includes('?')?'&':'?')+'t='+Date.now();
   });
-  fetchCameras().finally(()=>{ document.getElementById('cam-refresh').textContent='↻ REFRESH'; });
+  try { await fetchCameras(); }
+  finally { document.getElementById('cam-refresh').textContent='↻ REFRESH'; }
 }
 
 /* ─────────── BADGE HELPER ─────────── */
@@ -495,16 +510,23 @@ function setBadge(id, text, cls) {
   fetchCameras();
 })();
 
-setInterval(fetchWeather,      10*60*1000);
-setInterval(fetchAQ,           15*60*1000);
-setInterval(fetchSeismic,       5*60*1000);
-setInterval(fetchSpaceWeather,  5*60*1000);
-setInterval(fetchAirspace,      2*60*1000);
-setInterval(fetchISS,              5*1000);
-setInterval(fetchPowerGrid,     5*60*1000);
-setInterval(fetchCrypto,           30*1000);
-setInterval(fetchFX,           10*60*1000);
-setInterval(refreshCams,        60*1000);
+const pollers = [];
+function poll(task, delay) {
+  let timer;
+  let stopped = false;
+  const run = async () => {
+    try { if (!document.hidden) await task(); }
+    finally { if (!stopped) timer = window.setTimeout(run, delay); }
+  };
+  timer = window.setTimeout(run, delay);
+  pollers.push(() => { stopped = true; clearTimeout(timer); });
+}
+poll(fetchWeather,10*60*1000); poll(fetchAQ,15*60*1000);
+poll(fetchSeismic,5*60*1000); poll(fetchSpaceWeather,5*60*1000);
+poll(fetchAirspace,2*60*1000); poll(fetchISS,5*1000);
+poll(fetchPowerGrid,5*60*1000); poll(fetchCrypto,30*1000);
+poll(fetchFX,10*60*1000); poll(refreshCams,60*1000);
+window.addEventListener('pagehide', () => pollers.forEach(stop => stop()), {once:true});
 
 
 document.querySelectorAll('[data-airspace-filter]').forEach(button => button.addEventListener('click', () => setAcTab(button.dataset.airspaceFilter, button)));

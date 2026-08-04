@@ -6,10 +6,11 @@
   --amber:#ffaa00;--amber-dim:#4a3000;
   --cyan:#00ccff;--cyan-dim:#003344;
   --red:#ff4455;--orange:#ff8800;--purple:#aa66ff;
-  --text:#4a7090;--text2:#6a9ab5;--text3:#9ac8e0;--bright:#cce8f8;
+  --text:#7196b2;--text2:#82aac2;--text3:#a8d2e8;--bright:#d8f1ff;
   --mono:'IBM Plex Mono','Courier New',monospace;
 }
-html,body{background:var(--bg);color:var(--text2);font-family:var(--mono);font-size:11px;overflow-x:hidden}
+html,body{background:var(--bg);color:var(--text2);font-family:var(--mono);font-size:11px;overflow-x:clip}
+body{min-width:0}
 
 /* TICKER */
 #ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:999;background:#020509;border-bottom:1px solid var(--border2);height:22px;overflow:hidden;display:flex;align-items:center}
@@ -52,6 +53,7 @@ html,body{background:var(--bg);color:var(--text2);font-family:var(--mono);font-s
 #map{height:275px;width:100%}
 #iss-map{height:170px;width:100%}
 .leaflet-container{background:#050a10!important}
+.map-fallback{display:grid;place-items:center;padding:20px;text-align:center;color:var(--amber)}
 
 /* WEATHER */
 #wx-temp{font-size:38px;color:var(--amber);font-weight:bold;line-height:1;letter-spacing:-1px}
@@ -158,6 +160,8 @@ html,body{background:var(--bg);color:var(--text2);font-family:var(--mono);font-s
 .cam-nf-icon{font-size:20px;opacity:.35}
 .cam-flt-btn{font-size:8px;letter-spacing:.5px;padding:2px 8px;border:1px solid var(--border2);background:none;color:var(--text);cursor:pointer;font-family:var(--mono);border-radius:2px}
 .cam-flt-btn.on{border-color:var(--amber);color:var(--amber)}
+button:focus-visible,a:focus-visible,.leaflet-control a:focus-visible{outline:2px solid var(--bright);outline-offset:2px}
+.noscript-notice{margin:30px 12px 0;padding:12px;border:1px solid var(--amber);color:var(--amber)}
 
 /* UTILS */
 .pulse{animation:blink 1.4s ease-in-out infinite}
@@ -241,3 +245,25 @@ body::before{
 }
 
 .site-footer{margin:18px auto 42px;max-width:1400px;padding:14px;color:var(--text2);border-top:1px solid var(--border2);line-height:1.6}.site-footer a{color:var(--cyan)}.capture-notice{margin-top:5px;font-size:9px}.page-watermark{position:fixed;right:12px;bottom:8px;z-index:998;pointer-events:none;opacity:.16;color:var(--bright);font-size:8px;letter-spacing:2px}@media print{.page-watermark{opacity:.28}.site-footer{break-inside:avoid}}
+
+/* Responsive layout: preserve the dense command UI without horizontal clipping. */
+@media (max-width:1024px){
+  .g-loc{grid-template-columns:1.5fr 1fr}.g-loc>.panel:first-child{grid-row:span 2}
+  .g3{grid-template-columns:repeat(2,minmax(0,1fr))}.g3>.panel:last-child{grid-column:1/-1}
+  #cam-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:767px){
+  #nexus{padding-inline:8px}.g-loc,.g3,.g2{grid-template-columns:minmax(0,1fr)}
+  .g-loc>.panel:first-child{grid-row:auto}.g3>.panel:last-child{grid-column:auto}
+  .sec-hdr{flex-wrap:wrap;gap:6px}.sec-hdr .sub{flex-basis:100%;padding-left:16px}.sec-hdr .ml{margin-left:auto}
+  #map{height:240px}#cam-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ph{gap:8px}.ph>div{display:flex!important;max-width:100%;overflow-x:auto;padding-block:3px;scrollbar-width:thin}
+  .ac-tab,.cam-flt-btn{min-height:32px;padding-inline:10px}.site-footer{margin-inline:8px}
+}
+@media (max-width:374px){
+  #ticker-label{padding-inline:6px;letter-spacing:1px}#ticker-track span{padding-inline:12px}
+  #nexus{padding-inline:6px}.pt{letter-spacing:1px}#nx-brand{font-size:12px;letter-spacing:3px}
+  #nx-dots{gap:4px}.nd{width:6px;height:6px}#nx-clock{font-size:16px;letter-spacing:2px}
+  #cam-grid{grid-template-columns:minmax(0,1fr)}.fr{gap:4px}.fb-w{min-width:28px}.fg{width:52px}
+}
+@media (hover:none){.panel:hover,.cam:hover{box-shadow:none}.cam:hover{border-color:var(--border)}}
