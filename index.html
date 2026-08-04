@@ -14,16 +14,16 @@
 <meta name="cg:provenance" content="ClearGlassInc; release hashes: /releases/SHA256SUMS"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com https://air-quality-api.open-meteo.com https://opensky-network.org https://earthquake.usgs.gov https://services.swpc.noaa.gov https://api.wheretheiss.at https://corsproxy.io https://api.coingecko.com https://open.er-api.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"/>
 <link rel="describedby" type="application/ld+json" href="/assets/organization.json"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhty9Sg0ZBVeZK7hB1Bf4o5P+rU=" crossorigin="anonymous"/>
 <link rel="stylesheet" href="/assets/site.css"/>
 
 </head>
 <body>
 
 <!-- TICKER BAR -->
-<div id="ticker-wrap">
+<header id="ticker-wrap" aria-label="NEXUS live intelligence ticker">
   <div id="ticker-label">▶ NEXUS</div>
-  <div id="ticker-track">
+  <div id="ticker-track" aria-hidden="true">
     <span>ONTARIO SEISMIC MONITORING — SOUTHERN ONTARIO STATION ACTIVE</span>
     <span class="sep">◆</span>
     <span>HIGH SEISMIC FEED — M2.5+ WORLDWIDE ALERTS ACTIVE</span>
@@ -48,9 +48,9 @@
     <span class="sep">◆</span>
     <span id="t-crypto2">CRYPTO MARKETS — LOADING FEED</span>
   </div>
-</div>
+</header>
 
-<div id="nexus">
+<main id="nexus">
 
   <!-- LOCATION INTELLIGENCE -->
   <div class="sec-hdr">
@@ -107,9 +107,9 @@
     <div class="panel" style="padding:0">
       <div class="ph"><span class="pt">AIRSPACE SURVEILLANCE</span><span id="ac-badge" class="badge b-load pulse">…</span></div>
       <div class="ac-tabs">
-        <button class="ac-tab on" data-airspace-filter="all">AIRCRAFT</button>
-        <button class="ac-tab" data-airspace-filter="high">DEFENSE</button>
-        <button class="ac-tab" data-airspace-filter="all">ALL</button>
+        <button type="button" class="ac-tab on" data-airspace-filter="all" aria-pressed="true">AIRCRAFT</button>
+        <button type="button" class="ac-tab" data-airspace-filter="high" aria-pressed="false">DEFENSE</button>
+        <button type="button" class="ac-tab" data-airspace-filter="all" aria-pressed="false">ALL</button>
       </div>
       <div id="ac-sub" class="pulse">SCANNING AIRSPACE…</div>
       <div class="ac-list" id="ac-list"></div>
@@ -163,7 +163,7 @@
       <div class="nd nd-c" title="Crypto" style="animation-delay:.75s"></div>
       <div class="nd nd-r" title="Cameras" style="animation-delay:1.05s"></div>
     </div>
-    <div id="nx-clock">00:00:00</div>
+    <time id="nx-clock" aria-label="Local time">00:00:00</time>
   </div>
 
   <!-- ISS + POWER GRID -->
@@ -220,11 +220,11 @@
     <div class="ph">
       <span class="pt">LIVE CAMERA FEEDS</span>
       <div style="display:flex;gap:5px;align-items:center">
-        <button class="cam-flt-btn on" data-camera-filter="ALL">ALL</button>
-        <button class="cam-flt-btn" data-camera-filter="QEW">QEW</button>
-        <button class="cam-flt-btn" data-camera-filter="400">HWY 400</button>
-        <button class="cam-flt-btn" data-camera-filter="407">HWY 407</button>
-        <button id="cam-refresh" class="cam-flt-btn" data-camera-refresh>↻ REFRESH</button>
+        <button type="button" class="cam-flt-btn on" data-camera-filter="ALL" aria-pressed="true">ALL</button>
+        <button type="button" class="cam-flt-btn" data-camera-filter="QEW" aria-pressed="false">QEW</button>
+        <button type="button" class="cam-flt-btn" data-camera-filter="400" aria-pressed="false">HWY 400</button>
+        <button type="button" class="cam-flt-btn" data-camera-filter="407" aria-pressed="false">HWY 407</button>
+        <button type="button" id="cam-refresh" class="cam-flt-btn" data-camera-refresh aria-label="Refresh camera feeds">↻ REFRESH</button>
       </div>
     </div>
     <div style="padding:8px">
@@ -232,7 +232,7 @@
     </div>
   </div>
 
-</div><!-- end #nexus -->
+</main><!-- end #nexus -->
 
 <footer class="site-footer" aria-label="Legal and ownership information">
   <p><strong>© 2026 ClearGlassInc. All rights reserved.</strong> NEXUS and ClearGlassInc Artemis content, presentation, and software are owned by or licensed to ClearGlassInc.</p>
@@ -241,6 +241,7 @@
 </footer>
 <div class="page-watermark" aria-hidden="true">CLEARGLASSINC · NEXUS · HOME · 2026</div>
 
+<noscript><p class="noscript-notice">JavaScript is required to load live intelligence feeds. Legal and ownership information remains available below.</p></noscript>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 <script src="/assets/site.js" defer></script>
 </body>
