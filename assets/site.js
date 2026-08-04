@@ -533,3 +533,52 @@ document.querySelectorAll('[data-airspace-filter]').forEach(button => button.add
 document.querySelectorAll('[data-camera-filter]').forEach(button => button.addEventListener('click', () => filterCams(button.dataset.cameraFilter, button)));
 document.querySelector('[data-camera-refresh]')?.addEventListener('click', refreshCams);
 document.getElementById('cam-grid')?.addEventListener('error', event => { if (event.target instanceof HTMLImageElement) { event.target.style.display='none'; event.target.nextElementSibling?.style.setProperty('display','flex'); } }, true);
+
+/* ─────────── SUBTLE CONTENT PROTECTION ───────────
+   Browser protections are deterrents, never guarantees. Friction is scoped to
+   proprietary regions so controls, links, and the public data remain usable. */
+(function initContentProtection(){
+  const protectedSelector = '[data-protected]';
+  const toast = document.createElement('div');
+  toast.className = 'protection-toast';
+  toast.setAttribute('role','status');
+  toast.setAttribute('aria-live','polite');
+  toast.textContent = 'PROPRIETARY CLEARGLASSINC ARTEMIS MATERIAL · SHARING BY AUTHORIZATION';
+  document.body.appendChild(toast);
+  let toastTimer;
+  const notifyProtection = () => {
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  };
+  const isEditable = target => target instanceof Element && Boolean(target.closest('input,textarea,[contenteditable="true"]'));
+  document.addEventListener('contextmenu', event => {
+    if (event.target instanceof Element && event.target.closest(protectedSelector)) { event.preventDefault(); notifyProtection(); }
+  });
+  document.addEventListener('copy', event => {
+    const selection = window.getSelection();
+    const origin = selection?.anchorNode?.parentElement;
+    if (origin?.closest(protectedSelector) && !isEditable(origin)) { event.preventDefault(); notifyProtection(); }
+  });
+  document.addEventListener('cut', event => {
+    if (event.target instanceof Element && event.target.closest(protectedSelector) && !isEditable(event.target)) event.preventDefault();
+  });
+  document.addEventListener('dragstart', event => {
+    if (event.target instanceof Element && event.target.closest(protectedSelector)) event.preventDefault();
+  });
+
+  const sensitive = document.querySelector('[data-sensitive]');
+  let inactivityTimer;
+  const reveal = () => {
+    sensitive?.classList.remove('is-veiled');
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => sensitive?.classList.add('is-veiled'), 45000);
+  };
+  ['pointerdown','keydown','scroll'].forEach(type => window.addEventListener(type, reveal, {passive:true}));
+  window.addEventListener('blur', () => sensitive?.classList.add('is-veiled'));
+  document.addEventListener('visibilitychange', () => document.hidden ? sensitive?.classList.add('is-veiled') : reveal());
+  reveal();
+
+  const sessionMark = `${new Date().toISOString().slice(0,10)} · ${Math.random().toString(36).slice(2,8).toUpperCase()}`;
+  document.querySelectorAll('[data-session-mark]').forEach(node => { node.textContent = sessionMark; });
+})();
