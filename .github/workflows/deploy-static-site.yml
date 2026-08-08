@@ -20,7 +20,7 @@ jobs:
         run: |
           set -eu
           mkdir -p public/.well-known public/assets
-          cp index.html 404.html legal.html security.txt robots.txt sitemap.xml CNAME .nojekyll public/
+          cp index.html 404.html legal.html security.txt robots.txt sitemap.xml .nojekyll public/
           cp .well-known/security.txt public/.well-known/security.txt
           cp assets/site.css assets/site.js assets/legal.css assets/organization.json public/assets/
           if find public -type f \( -name '*.map' -o -name '.env*' -o -name '*.key' -o -name '*.pem' \) -print -quit | grep .; then exit 1; fi
