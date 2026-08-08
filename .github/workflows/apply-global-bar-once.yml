@@ -1,0 +1,113 @@
+name: Apply ClearGlass global bar once
+
+on:
+  push:
+    paths:
+      - .github/trigger/apply-global-bar-v1
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-global-bar-v1
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge global bar into live pages
+        shell: python
+        run: |
+          from pathlib import Path
+
+          nav = '''<div class="cg-global-shell">
+            <nav class="cg-global-bar" aria-label="ClearGlass global navigation">
+              <a class="cg-global-brand" href="/" aria-label="ClearGlassInc home">
+                <span class="cg-global-mark" aria-hidden="true"><span>CG</span></span>
+                <span class="cg-global-name">CLEARGLASS<span>INC</span></span>
+              </a>
+              <div class="cg-global-links">
+                <a href="/#artemis-capabilities">System</a>
+                <a href="/#live-command">NEXUS</a>
+                <a href="/legal.html">Trust</a>
+              </div>
+              <span class="cg-global-status"><span class="cg-global-dot" aria-hidden="true"></span>LIVE</span>
+              <a class="cg-global-cta" href="mailto:operations@clearglassinc.com?subject=ClearGlassInc%20mission%20brief">Command access</a>
+            </nav>
+          </div>'''
+
+          lanes = '''<div class="command-lanes" aria-label="Artemis command planes">
+                <div class="command-lane"><span>01</span><b>FUSE</b><em>LIVE</em></div>
+                <div class="command-lane"><span>02</span><b>VERIFY</b><em>ACTIVE</em></div>
+                <div class="command-lane"><span>03</span><b>GOVERN</b><em>HUMAN</em></div>
+                <div class="command-lane"><span>04</span><b>ACT</b><em>READY</em></div>
+              </div>'''
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly 1 match, found {count}")
+              return text.replace(old, new, 1)
+
+          index = Path('index.html')
+          html = index.read_text(encoding='utf-8')
+          html = replace_once(
+              html,
+              '<link rel="stylesheet" href="/assets/site.css"/>',
+              '<link rel="stylesheet" href="/assets/site.css"/>\n<link rel="stylesheet" href="/assets/global-bar.css"/>',
+              'index stylesheet hook',
+          )
+          html = replace_once(
+              html,
+              '</header>\n\n<main id="nexus">',
+              '</header>\n\n' + nav + '\n\n<main id="nexus">',
+              'index navigation hook',
+          )
+          html = replace_once(
+              html,
+              '<div class="signal-orbit" aria-hidden="true"><i></i><i></i><i></i><b>CG</b></div>',
+              lanes,
+              'hero orbit hook',
+          )
+          index.write_text(html, encoding='utf-8')
+
+          legal = Path('legal.html')
+          legal_html = legal.read_text(encoding='utf-8')
+          legal_html = replace_once(
+              legal_html,
+              '<link rel="stylesheet" href="/assets/legal.css">',
+              '<link rel="stylesheet" href="/assets/legal.css"><link rel="stylesheet" href="/assets/global-bar.css">',
+              'legal stylesheet hook',
+          )
+          legal_html = replace_once(
+              legal_html,
+              '</head><body><header>',
+              '</head><body class="legal-page">' + nav + '<header>',
+              'legal navigation hook',
+          )
+          legal.write_text(legal_html, encoding='utf-8')
+
+          for path in (index, legal):
+              content = path.read_text(encoding='utf-8')
+              if 'cg-global-bar' not in content:
+                  raise SystemExit(f'{path}: global bar missing after patch')
+          if 'signal-orbit' in index.read_text(encoding='utf-8'):
+              raise SystemExit('index.html: legacy circular signal orbit still present')
+
+      - name: Commit merged interface and remove one-off installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ClearGlassInc Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git rm .github/workflows/apply-global-bar-once.yml .github/trigger/apply-global-bar-v1
+          git add index.html legal.html
+          git diff --cached --check
+          git commit -m "feat(ui): merge global command bar into Artemis pages"
+          git push origin HEAD:main
