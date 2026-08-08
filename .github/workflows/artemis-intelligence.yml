@@ -51,4 +51,6 @@ jobs:
         run: mypy --strict artemis/intelligence/core.py
 
       - name: Test
-        run: pytest artemis/intelligence/test_core.py -q
+        # Invoke pytest through the selected interpreter so the repository root
+        # remains on sys.path when pytest is installed as a console script.
+        run: python -m pytest artemis/intelligence/test_core.py -q

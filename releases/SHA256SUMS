@@ -1,10 +1,10 @@
 daaec269b234c22f97f863cd2b591624a84d5f7b2a80f062a60ccb4d31940d2a  ./.well-known/security.txt
 b0279a0282f528ffdba822044840616a0c800364ffad1c2acc0f0ac58d50c0c4  ./assets/legal.css
 c0b412ed3f52ccf8387c03afe7b649301f87d2c04af9deb965ce947077bd34da  ./assets/organization.json
-f40ca13eb7afac503f617f9b6c22a8ab47706280b565ddf68d2ceba4965bdfca  ./assets/site.css
-434fee00c03ab2dca2b09ee37200dbed9e2f8c074f16ab93406d95982dececed  ./assets/site.js
+293b48a2f610ec62baf73bd93fb17c7551f78ebc941996b2cded2d61151e9ceb  ./assets/site.css
+99fef7a14f3ccf5219b6f2f96754d334db432c1ccc7ef4eb488006d151ad953b  ./assets/site.js
 3729f66842b9476190518d3af7d83abfc2d13d5900e97d5f47b6285dd020ad38  ./docs/runbooks/incident-response.md
 be2fd9299250709477be75fb7badfd3aa555bc96c45f4753a55b44d18c97dd1d  ./docs/security/deployment-and-residual-risk.md
 4eefc6c84d0ab015c11c23fa3b785eca0f95b9bc5feb91627409421711d40b49  ./docs/security/threat-model.md
 c6587d9fece80bf2f073b858c98f9e6984bcac8025b370334aacfa84ae786a5c  ./docs/security/website-threat-model-2026-08-03.md
-cf7fbdb39962ab8fbd8aa2b65972e83ac3dc66802458910e1f1835d553124348  ./legal.html
+ab617b0f464b4b43a30fe0214cef1c96787feda30088a69164c20accb9da15a7  ./legal.html
