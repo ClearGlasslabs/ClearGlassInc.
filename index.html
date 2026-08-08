@@ -16,6 +16,7 @@
 <link rel="describedby" type="application/ld+json" href="/assets/organization.json"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhty9Sg0ZBVeZK7hB1Bf4o5P+rU=" crossorigin="anonymous"/>
 <link rel="stylesheet" href="/assets/site.css"/>
+<link rel="stylesheet" href="/assets/global-bar.css"/>
 
 </head>
 <body>
@@ -50,6 +51,22 @@
   </div>
 </header>
 
+<div class="cg-global-shell">
+  <nav class="cg-global-bar" aria-label="ClearGlass global navigation">
+    <a class="cg-global-brand" href="/" aria-label="ClearGlassInc home">
+      <span class="cg-global-mark" aria-hidden="true"><span>CG</span></span>
+      <span class="cg-global-name">CLEARGLASS<span>INC</span></span>
+    </a>
+    <div class="cg-global-links">
+      <a href="/#artemis-capabilities">System</a>
+      <a href="/#live-command">NEXUS</a>
+      <a href="/legal.html">Trust</a>
+    </div>
+    <span class="cg-global-status"><span class="cg-global-dot" aria-hidden="true"></span>LIVE</span>
+    <a class="cg-global-cta" href="mailto:operations@clearglassinc.com?subject=ClearGlassInc%20mission%20brief">Command access</a>
+  </nav>
+</div>
+
 <main id="nexus">
 
   <!-- ARTEMIS HOMEPAGE NARRATIVE — additive to the live NEXUS dashboard -->
@@ -68,7 +85,12 @@
     </div>
     <div class="hero-console" aria-label="Artemis system status">
       <div class="console-head"><span>ARTEMIS / SYSTEM PULSE</span><span class="status-online">● OPERATIONAL</span></div>
-      <div class="signal-orbit" aria-hidden="true"><i></i><i></i><i></i><b>CG</b></div>
+      <div class="command-lanes" aria-label="Artemis command planes">
+      <div class="command-lane"><span>01</span><b>FUSE</b><em>LIVE</em></div>
+      <div class="command-lane"><span>02</span><b>VERIFY</b><em>ACTIVE</em></div>
+      <div class="command-lane"><span>03</span><b>GOVERN</b><em>HUMAN</em></div>
+      <div class="command-lane"><span>04</span><b>ACT</b><em>READY</em></div>
+    </div>
       <dl class="console-stats">
         <div><dt>DATA FUSION</dt><dd>LIVE</dd></div><div><dt>DECISION MODE</dt><dd>HUMAN-GOVERNED</dd></div><div><dt>AUDIT CHAIN</dt><dd>VERIFIABLE</dd></div>
       </dl>
