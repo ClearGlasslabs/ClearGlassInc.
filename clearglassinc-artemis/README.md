@@ -37,3 +37,7 @@ No AI proposal (prompt / workflow / routing / model change) reaches production w
 4. immutable audit write, 5. execution with rollback handle.
 
 See `docs/architecture/overview.md`.
+
+For the production-grade Palantir architecture, ontology, agent design, governed
+self-improvement lifecycle, code contracts, and end-to-end mission scenario, see
+[`docs/architecture/production-blueprint.md`](docs/architecture/production-blueprint.md).
