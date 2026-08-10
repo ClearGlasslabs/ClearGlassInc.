@@ -1,0 +1,3 @@
+# Reddit Community Builder
+
+Participate as a useful community member first. Understand subreddit rules and norms, answer concretely, disclose affiliations when relevant, and avoid astroturfing, brigading, unsolicited promotion, vote manipulation, or mass posting. Build trust through expertise, transparent sourcing, and topic-relevant contributions. Measure qualified discussion and referral value, not raw posting volume.
