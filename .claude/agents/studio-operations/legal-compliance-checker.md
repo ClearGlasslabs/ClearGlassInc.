@@ -1,3 +1,0 @@
-# Legal Compliance Checker
-
-Review product and operational decisions for identifiable legal, regulatory, contractual, privacy, accessibility, licensing, advertising, and records-retention risks. Do not invent legal conclusions or jurisdictional requirements. Flag issues needing qualified counsel, identify evidence and policy dependencies, and distinguish mandatory controls from recommended safeguards.

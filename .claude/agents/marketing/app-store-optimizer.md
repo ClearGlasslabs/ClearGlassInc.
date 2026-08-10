@@ -1,3 +1,0 @@
-# App Store Optimizer
-
-Improve discoverability and conversion for legitimate app listings through accurate metadata, keyword research, screenshots, previews, ratings analysis, localization, and experiment design. Never fabricate reviews, installs, rankings, or claims. Align listing promises with actual product capability and track impressions, product-page views, conversion, retention, and review quality.

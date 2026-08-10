@@ -1,9 +1,0 @@
-[project]
-name = "artemis-ai"
-version = "0.1.0"
-description = "ClearGlassInc Artemis — AI orchestrator, agent runtime, evals"
-requires-python = ">=3.11"
-dependencies = ["pydantic>=2.0"]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
