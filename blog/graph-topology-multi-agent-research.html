@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Graph Topology Beats One Giant Context | ClearGlass Intelligence</title>
+  <meta name="description" content="A practical planner-worker-critic workflow for multi-agent research, with evidence, benchmark caveats, and prompts you can run in ordinary chats.">
+  <meta name="author" content="ClearGlassInc">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://www.clearglassinc.com/blog/graph-topology-multi-agent-research.html">
+  <link rel="alternate" type="application/rss+xml" title="ClearGlass Intelligence" href="https://www.clearglassinc.com/feed.xml">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Graph Topology Beats One Giant Context">
+  <meta property="og:description" content="Planner → isolated workers → independent critic: a practical zero-framework pattern for higher-integrity research.">
+  <meta property="og:url" content="https://www.clearglassinc.com/blog/graph-topology-multi-agent-research.html">
+  <meta property="article:published_time" content="2026-08-14T10:41:00-04:00">
+  <meta property="article:section" content="AI Systems">
+  <meta name="twitter:card" content="summary">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+  <link rel="stylesheet" href="/assets/global-bar.css">
+  <link rel="stylesheet" href="/assets/blog.css">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {"@type":"BlogPosting","headline":"Graph Topology Beats One Giant Context","alternativeHeadline":"A zero-framework planner-worker-critic workflow for better research","description":"A practical planner-worker-critic workflow for multi-agent research, with evidence, benchmark caveats, and prompts you can run in ordinary chats.","datePublished":"2026-08-14T10:41:00-04:00","dateModified":"2026-08-14T10:41:00-04:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.clearglassinc.com/blog/graph-topology-multi-agent-research.html"},"author":{"@type":"Organization","name":"ClearGlassInc","url":"https://www.clearglassinc.com/"},"publisher":{"@type":"Organization","name":"ClearGlassInc","url":"https://www.clearglassinc.com/"},"articleSection":"AI Systems","keywords":["multi-agent systems","AI agents","research workflows","context isolation","orchestration","BrowseComp"]},
+      {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.clearglassinc.com/"},{"@type":"ListItem","position":2,"name":"ClearGlass Intelligence","item":"https://www.clearglassinc.com/blog.html"},{"@type":"ListItem","position":3,"name":"Graph Topology Beats One Giant Context"}]}
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#article">Skip to article</a>
+<div class="cg-global-shell">
+  <nav class="cg-global-bar" aria-label="ClearGlass global navigation">
+    <a class="cg-global-brand" href="/" aria-label="ClearGlassInc home"><span class="cg-global-mark" aria-hidden="true"><span>CG</span></span><span class="cg-global-name">CLEARGLASS<span>INC</span></span></a>
+    <div class="cg-global-links"><a href="/#artemis-capabilities">System</a><a href="/#live-command">NEXUS</a><a href="/blog.html" aria-current="page">Insights</a><a href="/pricing.html">Plans</a><a href="/legal.html">Trust</a></div>
+    <span class="cg-global-status"><span class="cg-global-dot" aria-hidden="true"></span>LIVE</span>
+    <a class="cg-global-cta" href="mailto:operations@clearglassinc.com?subject=ClearGlassInc%20mission%20brief">Command access</a>
+  </nav>
+</div>
+<main id="article" class="article-main">
+  <header class="article-hero">
+    <p class="eyebrow"><a href="/blog.html">ClearGlass Intelligence</a> / AI Systems</p>
+    <h1>Graph Topology Beats One Giant Context</h1>
+    <p class="article-deck">The zero-framework version of multi-agent research is not mysterious: separate planning, execution, and verification into clean contexts. Same class of models. Different topology. Better separation of concerns.</p>
+    <div class="article-meta-row"><span>14 August 2026</span><span>ClearGlassInc</span><span>~8 minute read</span><span>Evidence note: vendor benchmarks labeled</span></div>
+  </header>
+  <article class="article-body">
+    <div class="article-note"><strong>Operational thesis</strong>Treat the conversation as a graph of specialized nodes instead of one long, contaminated loop: one node plans, isolated nodes execute, and a final clean node audits the evidence.</div>
+
+    <p>That pattern is the practical core behind a large share of modern multi-agent research systems. A coordinator decomposes the mission, workers explore bounded subtasks in separate contexts, and a verifier checks what survives. Anthropic’s Managed Agents documentation describes the same coordinator-and-specialist topology: delegated agents run in their own context-isolated threads, can use distinct models and tools, and are strongest when the work can be split into well-scoped parallel tasks.</p>
+
+    <div class="graph" role="img" aria-label="Planner delegates isolated work to three workers, which feed an independent audit node and verified synthesis.">
+      <div class="graph-row"><span class="node primary">MISSION</span><span class="arrow">→</span><span class="node primary">PLAN NODE</span></div>
+      <div class="graph-row"><span class="arrow">↙</span><span class="arrow">↓</span><span class="arrow">↘</span></div>
+      <div class="graph-row"><span class="node">WORKER A<br>isolated</span><span class="node">WORKER B<br>isolated</span><span class="node">WORKER C<br>isolated</span></div>
+      <div class="graph-row"><span class="arrow">↘</span><span class="arrow">↓</span><span class="arrow">↙</span></div>
+      <div class="graph-row"><span class="node primary">AUDIT NODE</span><span class="arrow">→</span><span class="node primary">VERIFIED SYNTHESIS</span></div>
+    </div>
+
+    <h2>Why the topology change matters</h2>
+    <p>A single long conversation accumulates assumptions, stylistic inertia, stale interpretations, and sometimes outright mistakes. Fresh contexts reduce that path dependence. Each worker gets a narrower objective and a cleaner evidence boundary; the final verifier is less tempted to defend reasoning produced earlier in the same thread.</p>
+    <p>Anthropic’s 2025 engineering write-up on its research system explicitly highlighted <strong>separation of concerns, distinct exploration trajectories, parallel subagents, and independent context windows</strong> as important parts of its architecture. It also found that multi-agent research excelled on breadth-first questions that can be decomposed into independent directions.</p>
+
+    <h2>The three moves, tightened for an ordinary chat interface</h2>
+    <div class="workflow">
+      <section><h3>Plan only in the first context</h3><p>Give the full mission and constraints, then force an execution plan before research or drafting begins. The output should name each step, required tools or sources, acceptance criteria, and what must later be verified.</p></section>
+      <section><h3>Use a fresh context per independent step</h3><p>Copy only the relevant plan step plus the minimum necessary background into a new conversation. This is the manual equivalent of spawning isolated workers. Parallelize only when tasks are genuinely independent.</p></section>
+      <section><h3>Verify in a final clean context</h3><p>Bring the collected outputs into a new conversation and audit every material claim against primary sources or original data. Treat worker output as a claim until the verifier can trace it to evidence.</p></section>
+    </div>
+
+    <h2>Copy-ready prompt kit</h2>
+    <div class="prompt-box"><h3>1 / Planner</h3><pre>Do not research, draft, or answer the mission yet. Produce only a numbered execution plan. For each step specify: objective, inputs, tools or source types, success criteria, dependencies, and what must be independently verified later. Stop after the plan.</pre></div>
+    <div class="prompt-box"><h3>2 / Worker</h3><pre>Execute only this assigned step. Do not broaden scope. Separate observed evidence from inference. Prefer primary sources. Return: findings, source trail, uncertainties, contradictions, and a compact handoff for an independent verifier.</pre></div>
+    <div class="prompt-box"><h3>3 / Verifier</h3><pre>Audit the supplied outputs from scratch. Check every material factual claim against the original sources or primary data. Mark each claim Confirmed, Partially confirmed, or Unconfirmed and explain why. Flag contradictions, unsupported inference, stale evidence, and benchmark claims that are being generalized beyond their test conditions. Do not add new claims unless required to correct an error.</pre></div>
+
+    <h2>The benchmark economics are promising—and bounded</h2>
+    <p>Anthropic developer communications in July 2026 reported a BrowseComp configuration in which a frontier orchestrator delegated token-heavy research to lower-cost worker agents and retained roughly <strong>96% of the benchmark performance at 46% of the cost</strong> of the all-frontier comparison. That is a strong result, but the correct interpretation is narrow: it is a vendor-reported result on a specific browsing benchmark, not a universal 54% discount for every agent workflow.</p>
+    <p>The broader first-party evidence supports the architecture while also imposing limits. Anthropic’s research-system post reported that multi-agent systems can consume far more tokens than ordinary chat and argued that the economics make the most sense on high-value, heavily parallelizable tasks. Tightly sequential work—many coding tasks included—can lose the benefit because coordination overhead rises and shared state becomes more important.</p>
+
+    <div class="caveat-grid"><div><h3>Strong fit</h3><p>Deep research, multi-source investigations, due diligence, evidence mapping, comparative analysis, OSINT, literature review, and any mission where independent subquestions can be explored simultaneously.</p></div><div><h3>Weak fit</h3><p>Small creative tasks, tightly sequential implementation, work requiring constant shared mutable state, or low-value questions where the human overhead of managing multiple contexts costs more than it saves.</p></div></div>
+
+    <h2>The capital is real; the pattern is still accessible</h2>
+    <p>On 28 May 2026, Anthropic announced a <strong>$65 billion Series H</strong> at a <strong>$965 billion post-money valuation</strong>. Anthropic said the funding would support safety and interpretability research, compute expansion, and the products and partnerships used to scale Claude. That level of capital is relevant to production reliability, infrastructure, and safety research—but it is not a prerequisite for using the underlying orchestration discipline.</p>
+    <p>The manual version costs no framework license: plan cleanly, isolate independent work, and verify in a fresh context. What you are buying with discipline is not magical intelligence. You are reducing context contamination, forcing explicit task boundaries, and creating an independent acceptance boundary before synthesis.</p>
+
+    <div class="article-note"><strong>Bottom line</strong>When quality-per-token matters and the mission decomposes cleanly, changing the communication topology can be higher leverage than simply asking one model to “try harder.” The verifier remains non-negotiable.</div>
+
+    <section class="source-box" aria-labelledby="sources-title">
+      <h2 id="sources-title">Primary sources & evidence notes</h2>
+      <ol>
+        <li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" rel="noreferrer">Anthropic Engineering — How we built our multi-agent research system</a> (13 June 2025). Architecture, parallelization, context separation, token-cost caveats.</li>
+        <li><a href="https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration" rel="noreferrer">Claude Platform Docs — Multiagent orchestration</a>. Coordinator, isolated session threads, specialization, and parallelization guidance.</li>
+        <li><a href="https://www.anthropic.com/news/series-h" rel="noreferrer">Anthropic — Series H announcement</a> (28 May 2026). Funding amount, valuation, and stated investment priorities.</li>
+      </ol>
+      <p class="disclosure"><strong>Benchmark disclosure:</strong> The 96% / 46% BrowseComp figure is described as an Anthropic-reported developer benchmark. It should be treated as vendor-reported and workload-specific unless independently reproduced on your own task distribution.</p>
+    </section>
+  </article>
+</main>
+<footer class="blog-footer"><div class="blog-shell"><span>© 2026 ClearGlassInc. Human authority remains final.</span><span><a href="/blog.html">All insights</a> · <a href="/feed.xml">RSS</a> · <a href="/legal.html">Privacy & terms</a></span></div></footer>
+</body>
+</html>
