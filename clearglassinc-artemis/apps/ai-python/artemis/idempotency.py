@@ -6,7 +6,7 @@ import json
 import threading
 import time
 from dataclasses import dataclass
-from typing import Callable, Generic, Mapping, TypeVar
+from typing import Callable, Generic, Mapping, TypeVar, cast
 
 from artemis.observability import AuditRecorder, JobMetrics
 
@@ -70,7 +70,7 @@ class IdempotencyStore:
                     raise IdempotencyConflict("idempotency key reused with a different request")
                 metrics.record(job_name, "duplicate")
                 audit.record(event="job.duplicate_suppressed", job_name=job_name, state="succeeded")
-                return SubmissionResult(existing.value, duplicate=True)  # type: ignore[arg-type]
+                return SubmissionResult(cast(T, existing.value), duplicate=True)
 
             value = operation()
             self._records[identity] = _Record(fingerprint, value, self._clock() + ttl_seconds)
