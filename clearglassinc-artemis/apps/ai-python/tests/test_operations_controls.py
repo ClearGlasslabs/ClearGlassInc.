@@ -3,8 +3,9 @@ import json
 import pytest
 
 from artemis.idempotency import IdempotencyConflict, IdempotencyStore
-from artemis.job_registry import JobDefinition, JobRegistry, JobState, REGISTRY
+from artemis.job_registry import JobRegistry, JobState, REGISTRY
 from artemis.observability import AuditRecorder, JobMetrics, correlation_id, structured_event
+from artemis.policy import policy_check
 
 
 def test_registry_has_complete_fail_closed_submission_jobs():
@@ -74,3 +75,52 @@ def test_expired_key_can_be_safely_reused():
     assert store.execute(**kwargs).value == 1
     now[0] = 16.0
     assert store.execute(**kwargs).value == 2
+
+
+@pytest.mark.parametrize(
+    ("actor_clearance", "resource_classification", "reason"),
+    [
+        ("INVALID", "UNCL", "invalid actor clearance"),
+        ("TS", "UNKNOWN", "invalid resource classification"),
+        (None, "UNCL", "invalid actor clearance"),
+        ("TS", None, "invalid resource classification"),
+    ],
+)
+def test_policy_fails_closed_for_missing_or_unknown_classifications(
+    actor_clearance, resource_classification, reason
+):
+    decision = policy_check(
+        actor_id="operator-1",
+        action="ontology.read",
+        actor={"clearance": actor_clearance, "coalition_scope": ["US"]},
+        resource={"classification": resource_classification, "coalition_scope": ["US"]},
+    )
+
+    assert not decision.allow
+    assert decision.reason == reason
+
+
+def test_policy_fails_closed_for_malformed_coalition_scopes():
+    decision = policy_check(
+        actor_id="operator-1",
+        action="ontology.read",
+        actor={"clearance": "TS", "coalition_scope": ["US", {"unexpected": "object"}]},
+        resource={"classification": "SECRET", "coalition_scope": ["US"]},
+    )
+
+    assert not decision.allow
+    assert decision.reason == "invalid actor coalition scope"
+
+
+@pytest.mark.parametrize("confidence", [None, "high", True, -0.1, 1.1])
+def test_execution_policy_fails_closed_for_invalid_confidence(confidence):
+    decision = policy_check(
+        actor_id="operator-1",
+        action="action.execute",
+        actor={"clearance": "TS", "coalition_scope": ["US"]},
+        resource={"classification": "SECRET", "coalition_scope": ["US"]},
+        context={"human_approval_token": "approved", "confidence": confidence},
+    )
+
+    assert not decision.allow
+    assert decision.reason == "invalid confidence"
