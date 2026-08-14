@@ -2,7 +2,22 @@ name: Deploy allowlisted static site
 on:
   push:
     branches: [main]
-    paths: ["index.html", "404.html", "legal.html", "assets/**", ".well-known/**", "security.txt", "robots.txt", "sitemap.xml", "CNAME", "_headers", ".github/workflows/deploy-static-site.yml"]
+    paths:
+      - "index.html"
+      - "404.html"
+      - "legal.html"
+      - "pricing.html"
+      - "blog.html"
+      - "blog/**"
+      - "feed.xml"
+      - "assets/**"
+      - ".well-known/**"
+      - "security.txt"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "CNAME"
+      - "_headers"
+      - ".github/workflows/deploy-static-site.yml"
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,10 +34,11 @@ jobs:
       - name: Assemble explicit public artifact
         run: |
           set -eu
-          mkdir -p public/.well-known public/assets
-          cp index.html 404.html legal.html security.txt robots.txt sitemap.xml .nojekyll public/
+          mkdir -p public/.well-known public/assets public/blog
+          cp index.html 404.html legal.html pricing.html blog.html feed.xml security.txt robots.txt sitemap.xml .nojekyll public/
           cp .well-known/security.txt public/.well-known/security.txt
-          cp assets/site.css assets/site.js assets/legal.css assets/organization.json public/assets/
+          cp assets/site.css assets/site.js assets/legal.css assets/global-bar.css assets/pricing.css assets/pricing.js assets/blog.css assets/organization.json public/assets/
+          cp blog/*.html public/blog/
           if find public -type f \( -name '*.map' -o -name '.env*' -o -name '*.key' -o -name '*.pem' \) -print -quit | grep .; then exit 1; fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
