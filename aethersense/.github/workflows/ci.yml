@@ -1,0 +1,25 @@
+name: aethersense-ci
+on:
+  push:
+    paths: ['aethersense/**']
+  pull_request:
+    paths: ['aethersense/**']
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: aethersense}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r services/inference/requirements.txt
+      - run: pytest -q services/inference/tests
+  web:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: aethersense/apps/web}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm, cache-dependency-path: aethersense/apps/web/package.json}
+      - run: npm install
+      - run: npm run build

@@ -1,0 +1,3 @@
+# keep scipy/numpy versions aligned with API service
+-r services/api/requirements.txt
+pytest==8.4.1
