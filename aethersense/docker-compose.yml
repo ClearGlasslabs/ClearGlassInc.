@@ -1,0 +1,17 @@
+services:
+  api:
+    build: {context: ., dockerfile: services/api/Dockerfile}
+    ports: ["8000:8000"]
+    environment:
+      AETHERSENSE_DATA_DIR: /data
+      AETHERSENSE_HOST: 0.0.0.0
+      AETHERSENSE_PORT: 8000
+      AETHERSENSE_CSRF_TOKEN: ${AETHERSENSE_CSRF_TOKEN:-local-dev-csrf}
+    volumes: ["./data:/data"]
+  web:
+    build: {context: ., dockerfile: apps/web/Dockerfile}
+    ports: ["3000:3000"]
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8000
+    depends_on: [api]
+volumes: {} 
