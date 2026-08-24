@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+<g fill="none" stroke="currentColor" opacity="0.7">
+<path d="M100 300 L300 120 L500 300 L700 150 L900 300"/>
+<path d="M300 120 L500 500 L700 150"/>
+</g>
+<g fill="currentColor">
+<circle cx="100" cy="300" r="8"/><circle cx="300" cy="120" r="8"/><circle cx="500" cy="300" r="8"/><circle cx="700" cy="150" r="8"/><circle cx="900" cy="300" r="8"/>
+</g>
+</svg>
