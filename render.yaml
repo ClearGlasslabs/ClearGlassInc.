@@ -6,7 +6,10 @@ services:
     dockerfilePath: ./clearglassinc-artemis/apps/api-node/Dockerfile
     dockerContext: ./clearglassinc-artemis/apps/api-node
     healthCheckPath: /healthz
-    autoDeployTrigger: commit
+    # GitHub Actions deploys only after its test and image-build gates pass.
+    # Keeping Render auto-deploy disabled prevents an unvalidated push and the
+    # deploy-hook job from racing to deploy different revisions.
+    autoDeployTrigger: "off"
     envVars:
       - key: NODE_ENV
         value: production
