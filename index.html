@@ -1,33 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>ClearGlassInc Artemis · See the Signal. Command the Outcome.</title>
-<meta name="description" content="ClearGlassInc Artemis fuses live intelligence into human-governed, decision-ready clarity. Enter the NEXUS public situational-awareness command surface."/>
-<meta name="author" content="ClearGlassInc Artemis"/>
-<link rel="canonical" href="https://www.clearglassinc.com/"/>
-<meta property="og:url" content="https://www.clearglassinc.com/"/>
-<meta property="og:title" content="ClearGlassInc Artemis · Command Intelligence"/>
-<meta property="og:type" content="website"/>
-<meta name="cg:provenance" content="ClearGlassInc; release hashes: /releases/SHA256SUMS"/>
-<link rel="stylesheet" href="/assets/site.css"/>
-<link rel="stylesheet" href="/assets/global-bar.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ClearGlassInc — See Clearly. Operate Securely.</title>
+<meta name="description" content="ClearGlassInc builds governed AI, cybersecurity, intelligence and digital-risk systems for transparent, defensible decisions.">
+<meta name="author" content="ClearGlassInc">
+<link rel="canonical" href="https://www.clearglassinc.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ClearGlassInc — See Clearly. Operate Securely.">
+<meta property="og:description" content="Governed intelligence systems for transparent, defensible decisions.">
+<meta property="og:url" content="https://www.clearglassinc.com/">
+<meta name="theme-color" content="#030609">
+<link rel="stylesheet" href="/assets/global-bar.css">
 <style>
-.ledger-home{max-width:1120px;margin:64px auto;padding:0 22px}.ledger-home-card{position:relative;overflow:hidden;border:1px solid #5a4630;border-radius:18px;padding:42px;background:linear-gradient(135deg,#17120c,#0d1117 60%,#090c10);box-shadow:0 18px 60px rgba(0,0,0,.3)}.ledger-home-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 20%,rgba(214,179,106,.13),transparent 35%);pointer-events:none}.ledger-home-content{position:relative}.ledger-kicker{color:#d6b36a;font-size:.72rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase}.ledger-home h2{font-family:Georgia,serif;font-size:clamp(2.4rem,6vw,5rem);line-height:.95;margin:15px 0 10px;color:#f0f2f5}.ledger-tagline{font-size:clamp(1.1rem,2.5vw,1.5rem);color:#d2d9e1;max-width:760px}.ledger-home p{color:#b8c2cc;max-width:820px}.ledger-buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.ledger-btn{display:inline-block;padding:11px 17px;border:1px solid #5a4630;border-radius:8px;background:#17120c;color:#f1dfb8;text-decoration:none;font-weight:750}.ledger-btn.alt{border-color:#303946;background:#0d1117;color:#e8edf3}.ledger-note{font-size:.78rem;color:#7f8994!important;margin-top:18px}
-.helix-home{max-width:1120px;margin:32px auto;padding:0 22px}.helix-home-card{position:relative;overflow:hidden;border:1px solid #33465d;border-radius:18px;padding:36px;background:linear-gradient(135deg,#0d1622,#101a28 58%,#0a111b);box-shadow:0 18px 60px rgba(0,0,0,.24)}.helix-home-content{position:relative}.helix-kicker{color:#8fc7ff;font-size:.72rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase}.helix-home h2{font-size:clamp(2rem,5vw,4rem);line-height:1;margin:14px 0 10px;color:#f0f5fa}.helix-tagline{font-size:clamp(1.05rem,2.3vw,1.4rem);color:#c8d6e4;max-width:820px}.helix-home p{color:#aebdcb;max-width:820px}.helix-btn{display:inline-block;margin-top:20px;padding:11px 17px;border:1px solid #42617e;border-radius:8px;background:#111f2f;color:#d9edff;text-decoration:none;font-weight:750}
+:root{--bg:#030609;--panel:#071017;--line:rgba(133,210,235,.18);--text:#e9f2f6;--muted:#8fa6b0;--cyan:#72d8ee;--cyan2:#2ba7c5}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 50% -10%,#0b2630 0,transparent 34rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+a{color:inherit}.cg-global-shell{position:sticky;top:0;z-index:20}.cg-global-bar{backdrop-filter:blur(18px);background:rgba(3,6,9,.86)}
+.cg-loader{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#020406;transition:opacity .45s ease,visibility .45s ease}.cg-loader.done{opacity:0;visibility:hidden;pointer-events:none}.cg-loader-core{text-align:center}.cg-loader-ring{width:72px;height:72px;margin:auto;border:1px solid rgba(114,216,238,.25);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;display:grid;place-items:center;box-shadow:0 0 45px rgba(43,167,197,.12)}.cg-loader-ring b{font-size:.7rem;letter-spacing:.18em;color:var(--cyan)}.cg-loader p{margin:16px 0 0;font-size:.67rem;letter-spacing:.28em;color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.cg-loader-ring{animation:none}}
+main{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:30px 0 72px}.eyebrow{font-size:.68rem;letter-spacing:.25em;color:var(--cyan);text-transform:uppercase}
+.hero{min-height:clamp(640px,86vh,880px);display:grid;align-content:center;gap:26px;padding:clamp(24px,5vw,70px);border:1px solid var(--line);border-radius:28px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(12,30,37,.96),rgba(3,7,10,.98) 54%,rgba(2,5,7,.99));box-shadow:0 40px 100px rgba(0,0,0,.35)}
+.hero:before{content:"";position:absolute;inset:-30%;background:linear-gradient(90deg,transparent,rgba(114,216,238,.08),transparent);transform:rotate(-12deg);animation:sweep 10s ease-in-out infinite}.hero>*{position:relative}@keyframes sweep{0%,100%{translate:-25% 0}50%{translate:25% 0}}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:clamp(28px,6vw,88px);align-items:center}.hero h1{font-size:clamp(3rem,8vw,7rem);line-height:.9;letter-spacing:-.055em;margin:0;max-width:720px}.hero h1 span{display:block;color:var(--cyan)}.hero-copy{max-width:660px;color:var(--muted);font-size:clamp(1rem,1.8vw,1.2rem);line-height:1.7}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font-weight:700}.btn.primary{background:var(--cyan);color:#031014;border-color:var(--cyan)}
+.seal-card{aspect-ratio:1/1;max-width:430px;width:100%;justify-self:center;border:1px solid rgba(114,216,238,.26);border-radius:24px;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,rgba(114,216,238,.16),transparent 40%),linear-gradient(145deg,#0b1d24,#04080b);box-shadow:inset 0 0 80px rgba(114,216,238,.06),0 28px 80px rgba(0,0,0,.45);position:relative;overflow:hidden}.seal-card:after{content:"CLEARGLASSINC // TRANSPARENCY IS INFRASTRUCTURE";position:absolute;bottom:20px;left:18px;right:18px;text-align:center;font-size:.55rem;letter-spacing:.2em;color:var(--muted)}.seal-card img{width:72%;height:72%;object-fit:contain;filter:drop-shadow(0 0 28px rgba(114,216,238,.18))}
+.signal-strip{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line);font-size:.68rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.city{margin-top:28px;border:1px solid var(--line);border-radius:28px;overflow:hidden;min-height:520px;position:relative;background:linear-gradient(180deg,rgba(4,10,14,.2),rgba(2,5,8,.92)),radial-gradient(circle at 50% 0%,rgba(65,142,168,.24),transparent 44%),linear-gradient(120deg,#0b1c23,#060a0d 60%,#030507)}.city:before{content:"";position:absolute;left:-5%;right:-5%;bottom:0;height:58%;opacity:.9;background:linear-gradient(90deg,transparent 0 2%,#08131a 2% 7%,transparent 7% 9%,#101f25 9% 17%,transparent 17% 20%,#09151c 20% 29%,transparent 29% 31%,#0d1b21 31% 42%,transparent 42% 45%,#071119 45% 56%,transparent 56% 59%,#0c1d24 59% 71%,transparent 71% 74%,#09141a 74% 85%,transparent 85% 88%,#0b1820 88% 100%);clip-path:polygon(0 35%,4% 35%,4% 22%,9% 22%,9% 52%,15% 52%,15% 8%,21% 8%,21% 43%,29% 43%,29% 0,33% 0,33% 55%,40% 55%,40% 18%,48% 18%,48% 42%,56% 42%,56% 12%,63% 12%,63% 50%,70% 50%,70% 4%,75% 4%,75% 36%,82% 36%,82% 17%,89% 17%,89% 46%,100% 46%,100% 100%,0 100%)}.city:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 74px,rgba(114,216,238,.035) 75px 76px),linear-gradient(180deg,transparent 70%,rgba(114,216,238,.18));pointer-events:none}.city-content{position:relative;z-index:1;padding:clamp(30px,6vw,76px);max-width:720px}.city h2{font-size:clamp(2.6rem,7vw,6rem);line-height:.94;margin:18px 0}.city p{color:#aabac1;line-height:1.7;max-width:580px}.founder{margin-top:28px;padding:26px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.founder strong{letter-spacing:.1em}.founder span{color:var(--muted)}
+.governed{padding:90px 0 20px}.governed h2{font-size:clamp(2.5rem,6vw,5.5rem);line-height:.95;letter-spacing:-.04em;max-width:850px;margin:16px 0}.governed p{max-width:700px;color:var(--muted);line-height:1.75;font-size:1.05rem}.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:34px}.pillar{padding:24px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(12,25,31,.7),rgba(4,8,11,.8))}.pillar b{display:block;font-size:1.05rem;margin-bottom:10px}.pillar span{color:var(--muted);line-height:1.6;font-size:.92rem}
+footer{padding:44px 0 10px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--line)}.footer-row{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}.footer-row nav{display:flex;gap:18px;flex-wrap:wrap}
+@media(max-width:760px){main{width:min(100% - 18px,1120px);padding-top:12px}.hero{padding:28px 20px;border-radius:22px}.hero-grid{grid-template-columns:1fr}.seal-card{max-width:330px;order:-1}.hero h1{font-size:clamp(3rem,15vw,5rem)}.city{min-height:470px;border-radius:22px}.city-content{padding:34px 22px}.pillars{grid-template-columns:1fr}.signal-strip{font-size:.57rem}}
 </style>
 </head>
 <body>
-<header id="ticker-wrap" aria-label="NEXUS live intelligence ticker"><div id="ticker-label">▶ NEXUS</div><div id="ticker-track"><span>ONTARIO SEISMIC MONITORING — SOUTHERN ONTARIO STATION ACTIVE</span><span class="sep">◆</span><span>HIGH SEISMIC FEED — M2.5+ WORLDWIDE ALERTS ACTIVE</span></div></header>
-<div class="cg-global-shell"><nav class="cg-global-bar" aria-label="ClearGlass global navigation"><a class="cg-global-brand" href="/" aria-label="ClearGlassInc home"><span class="cg-global-mark" aria-hidden="true"><span>CG</span></span><span class="cg-global-name">CLEARGLASS<span>INC</span></span></a><div class="cg-global-links"><a href="/#artemis-capabilities">System</a><a href="/#live-command">NEXUS</a><a href="/blog.html#the-ledger-of-ashes">Book</a><a href="/pricing.html">Plans</a><a href="/legal.html">Trust</a></div><span class="cg-global-status"><span class="cg-global-dot" aria-hidden="true"></span>LIVE</span><a class="cg-global-cta" href="mailto:operations@clearglassinc.com?subject=ClearGlassInc%20mission%20brief">Command access</a></nav></div>
-<main>
-<section class="helix-home" id="helix" aria-labelledby="helix-home-title"><div class="helix-home-card"><div class="helix-home-content"><div class="helix-kicker">CLEARGLASSINC · HELIX</div><h2 id="helix-home-title">HELIX</h2><div class="helix-tagline">Exposure Lattice &amp; Response Rehearsal</div><p>Explore the ClearGlass exposure-lattice and response-rehearsal framework.</p><a class="helix-btn" href="https://www.clearglassinc.com/helix.html">Open HELIX ↗</a></div></div></section>
-<section class="ledger-home" id="the-ledger-of-ashes" aria-labelledby="ledger-home-title"><div class="ledger-home-card"><div class="ledger-home-content"><div class="ledger-kicker">CLEARGLASSINC · FEATURED BOOK · FICTION</div><h2 id="ledger-home-title">The Ledger of Ashes</h2><div class="ledger-tagline">The thriller that will make you question every black SUV.</div><p><strong>They killed the founder. Now they're coming for the CEO. And they want you to watch.</strong></p><p>A dedicated home for the political thriller about Eleanor Vance, Julian Mercer, the fictional Harrow Group, a hidden ledger, and three people who refuse to look away.</p><div class="ledger-buttons"><a class="ledger-btn" href="/blog.html#the-ledger-of-ashes">Explore the Book ↗</a><a class="ledger-btn alt" href="/blog.html#book-feature">Read the Feature ↗</a></div><p class="ledger-note">FICTIONAL WORK · Characters, organizations, operations, and events depicted in the book are invented unless independently identified as factual.</p></div></div></section>
+<div id="cg-loader" class="cg-loader" role="status" aria-live="polite" aria-label="Loading ClearGlassInc">
+  <div class="cg-loader-core"><div class="cg-loader-ring"><b>CG</b></div><p>INITIALIZING CLEARGLASSINC</p></div>
+</div>
 
-<!-- EXISTING CLEARGLASSINC ARTEMIS / NEXUS CONTENT CONTINUES BELOW. -->
-<section id="artemis-capabilities"><h1>ClearGlassInc Artemis</h1><p>See the signal. Command the outcome.</p></section>
-<section id="live-command"><h2>NEXUS LIVE COMMAND</h2><p>Public-source situational awareness.</p></section>
+<div class="cg-global-shell">
+<nav class="cg-global-bar" aria-label="ClearGlass navigation">
+<a class="cg-global-brand" href="/" aria-label="ClearGlassInc home"><span class="cg-global-mark" aria-hidden="true"><span>CG</span></span><span class="cg-global-name">CLEARGLASS<span>INC</span></span></a>
+<div class="cg-global-links"><a href="#systems">Systems</a><a href="/blog.html">Insights</a><a href="/pricing.html">Plans</a><a href="/legal.html">Trust</a></div>
+<span class="cg-global-status"><span class="cg-global-dot" aria-hidden="true"></span>LIVE</span>
+<a class="cg-global-cta" href="mailto:operations@clearglassinc.com?subject=ClearGlassInc%20mission%20brief">Command access</a>
+</nav>
+</div>
+
+<main>
+<section class="hero" aria-labelledby="hero-title">
+<div class="hero-grid">
+<div>
+<div class="eyebrow">ClearGlassInc · AI · Cybersecurity · Intelligence · Governance</div>
+<h1 id="hero-title">See clearly.<span>Operate securely.</span></h1>
+<p class="hero-copy">ClearGlassInc transforms complex technical signals into transparent, governed and defensible decisions.</p>
+<div class="hero-actions"><a class="btn primary" href="#systems">Explore the systems</a><a class="btn" href="/blog.html">Read the intelligence</a></div>
+</div>
+<div class="seal-card"><img src="/assets/images/clearglass-seal.jpg" alt="ClearGlassInc verified seal"></div>
+</div>
+<div class="signal-strip"><span>Transparency is infrastructure</span><span>Human-governed systems</span><span>Decision-ready intelligence</span></div>
+</section>
+
+<section class="city" aria-labelledby="ontario-title">
+<div class="city-content">
+<div class="eyebrow">Ontario · Canada</div>
+<h2 id="ontario-title">Built for complex environments.</h2>
+<p>ClearGlassInc operates at the intersection of cybersecurity, AI governance, public-source intelligence, automation and digital risk.</p>
+</div>
+</section>
+
+<section class="founder" aria-label="ClearGlass leadership identity">
+<strong>DESMOND OTIENO ODHIAMBO</strong>
+<span>FOUNDER · SOFTWARE ARCHITECT · CLEARGLASSINC</span>
+</section>
+
+<section id="systems" class="governed" aria-labelledby="systems-title">
+<div class="eyebrow">ClearGlass intelligence architecture</div>
+<h2 id="systems-title">Governed AI systems for transparent, defensible decisions.</h2>
+<p>From security telemetry to AI governance and digital-risk operations, ClearGlassInc connects evidence, controls and execution without losing accountability.</p>
+<div class="pillars">
+<article class="pillar"><b>Cybersecurity</b><span>Defensive visibility, technical assurance and evidence-driven risk reduction.</span></article>
+<article class="pillar"><b>Governed AI</b><span>Human accountability, policy-aware automation and controlled AI operations.</span></article>
+<article class="pillar"><b>Intelligence</b><span>Public-source and operational signals translated into decision-ready context.</span></article>
+</div>
+</section>
+
+<footer><div class="footer-row"><span>© 2026 ClearGlassInc. All rights reserved.</span><nav aria-label="Footer"><a href="/blog.html">Insights</a><a href="/pricing.html">Plans</a><a href="/legal.html">Legal</a></nav></div></footer>
 </main>
+
+<script>
+(function(){
+  const loader=document.getElementById('cg-loader');
+  const finish=()=>{ if(loader) loader.classList.add('done'); };
+  if(document.readyState==="complete") requestAnimationFrame(finish);
+  else window.addEventListener("load",finish,{once:true});
+  window.setTimeout(finish,3500);
+})();
+</script>
 </body>
 </html>
