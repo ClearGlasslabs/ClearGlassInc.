@@ -28,6 +28,14 @@ jobs:
               print('Ledger of Ashes homepage section already present.')
               raise SystemExit(0)
 
+          # The current ClearGlass homepage intentionally uses a plain <main>
+          # element. Do not mutate or redesign the homepage when the historical
+          # insertion anchor is absent; leave the existing production composition intact.
+          anchor = '<main id="nexus">'
+          if anchor not in html:
+              print('Historical homepage anchor is absent; preserving current homepage unchanged.')
+              raise SystemExit(0)
+
           section = r'''<!-- CLEARGLASS_BOOK_SECTION -->
           <style id="ledger-book-home-style">
           .ledger-book-home{margin:44px auto;max-width:1180px;padding:clamp(28px,5vw,58px);border:1px solid #5b4730;border-radius:18px;background:linear-gradient(135deg,#17120c,#0d1117 58%,#090c10);position:relative;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.3)}
@@ -47,10 +55,6 @@ jobs:
             <p class="ledger-book-meta">FICTIONAL WORK · CHARACTERS, ORGANIZATIONS, OPERATIONS AND EVENTS ARE INVENTED</p>
           </section>
           <!-- /CLEARGLASS_BOOK_SECTION -->'''
-
-          anchor = '<main id="nexus">'
-          if anchor not in html:
-              raise SystemExit('Homepage anchor not found; no change made.')
 
           html = html.replace(anchor, section + '\n\n  ' + anchor, 1)
           path.write_text(html, encoding='utf-8')
