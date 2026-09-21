@@ -1,0 +1,100 @@
+name: CAPE Prompt Optimization
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Task description for the prompt being optimized"
+        required: false
+        default: "Generate a single, consistent one-line description of ClearGlass Inc. for use across the website, README, and social profiles. It must accurately reflect that ClearGlass Inc. builds AI automation, agent systems, and digital infrastructure for product licensing and AI-assisted operations."
+      seed_prompts:
+        description: "Seed prompts, separated by '|||'"
+        required: false
+        default: "Write a one-line company description for ClearGlass Inc.|||In one sentence, describe what ClearGlass Inc. builds and who it is for."
+      test_inputs:
+        description: "Test inputs, separated by '|||'"
+        required: false
+        default: "homepage hero tagline|||README one-liner|||LinkedIn company bio"
+      pop_size:
+        description: "Population size"
+        required: false
+        default: "8"
+      generations:
+        description: "Number of generations"
+        required: false
+        default: "6"
+      eval_budget:
+        description: "Max OpenAI evaluation calls (hard cost cap)"
+        required: false
+        default: "120"
+  schedule:
+    - cron: "0 6 * * 1"  # weekly, Monday 06:00 UTC. Adjust or remove if you only want on-demand runs.
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      TASK: ${{ github.event.inputs.task || 'Generate a single, consistent one-line description of ClearGlass Inc. for use across the website, README, and social profiles. It must accurately reflect that ClearGlass Inc. builds AI automation, agent systems, and digital infrastructure for product licensing and AI-assisted operations.' }}
+      SEED_PROMPTS: ${{ github.event.inputs.seed_prompts || 'Write a one-line company description for ClearGlass Inc.|||In one sentence, describe what ClearGlass Inc. builds and who it is for.' }}
+      TEST_INPUTS: ${{ github.event.inputs.test_inputs || 'homepage hero tagline|||README one-liner|||LinkedIn company bio' }}
+      POP_SIZE: ${{ github.event.inputs.pop_size || '8' }}
+      GENERATIONS: ${{ github.event.inputs.generations || '6' }}
+      EVAL_BUDGET: ${{ github.event.inputs.eval_budget || '120' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r tools/requirements-cape.txt
+
+      - name: Fail fast if OPENAI_API_KEY is missing
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::error::OPENAI_API_KEY secret is not set. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Run CAPE optimizer
+        id: cape
+        run: |
+          IFS='|||' read -ra SEEDS <<< "$SEED_PROMPTS"
+          IFS='|||' read -ra TESTS <<< "$TEST_INPUTS"
+          ARGS=()
+          for s in "${SEEDS[@]}"; do
+            [ -n "$s" ] && ARGS+=(--seed-prompt "$s")
+          done
+          for t in "${TESTS[@]}"; do
+            [ -n "$t" ] && ARGS+=(--test-input "$t")
+          done
+          mkdir -p tools/cape_results
+          STAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+          python tools/cape_prompt_optimizer.py \
+            --task "$TASK" \
+            "${ARGS[@]}" \
+            --pop-size "$POP_SIZE" \
+            --generations "$GENERATIONS" \
+            --eval-budget "$EVAL_BUDGET" \
+            | tee "tools/cape_results/run_${STAMP}.log"
+
+      - name: Upload run log as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cape-run-${{ github.run_id }}
+          path: tools/cape_results/*.log
+
+      - name: Commit run log to repo
+        run: |
+          git config user.name "cape-bot"
+          git config user.email "actions@github.com"
+          git add tools/cape_results/*.log
+          git diff --cached --quiet || git commit -m "CAPE run log $(date -u +%Y-%m-%d)"
+          git push
