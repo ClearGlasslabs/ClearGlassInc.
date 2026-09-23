@@ -2,6 +2,19 @@ name: Auto Heal
 
 on:
   workflow_run:
+    # GitHub rejects a workflow_run trigger without this list, which left the
+    # whole file invalid: no schedule, dispatch or failure run ever started.
+    # Names must match each workflow's `name:` exactly.
+    workflows:
+      - Artemis Intelligence Validation
+      - CAPE Prompt Optimization
+      - ClearGlass Platform CI
+      - Deploy Artemis API
+      - Graph Engineering CI
+      - Publish Ledger of Ashes Homepage Section
+      - Repository Health
+      - Security Baseline
+      - Visual Regression
     types: [completed]
   schedule:
     - cron: "17 4 * * *"
