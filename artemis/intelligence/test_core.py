@@ -1,3 +1,5 @@
+import pytest
+
 from artemis.intelligence.core import (
     AuditChain,
     Classification,
@@ -56,3 +58,17 @@ def test_policy_gate_blocks_unauthorized_high_impact_action() -> None:
     )
     assert not allowed
     assert len(reasons) == 2
+
+
+def test_policy_gate_action_list_cannot_be_mutated_at_runtime() -> None:
+    # The list is shared by every PolicyGate; a mutable set would let one
+    # caller silently remove an action from the gate for all of them.
+    with pytest.raises(AttributeError):
+        PolicyGate.HIGH_IMPACT_ACTIONS.discard("deploy_production")  # type: ignore[attr-defined]
+    allowed, _ = PolicyGate().evaluate(
+        action="deploy_production",
+        authorized=False,
+        reversible=False,
+        evidence_count=1,
+    )
+    assert not allowed
