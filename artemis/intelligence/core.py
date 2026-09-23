@@ -7,15 +7,16 @@ production mutation. Every result carries provenance and confidence metadata.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
-from enum import Enum
-from hashlib import sha256
-from typing import Any, Iterable, Mapping, Sequence
 import json
 import math
 import re
 import uuid
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
+from enum import Enum
+from hashlib import sha256
+from typing import Any, ClassVar
 
 
 class Classification(str, Enum):
@@ -40,7 +41,7 @@ class Evidence:
     reliability: float
 
     @classmethod
-    def build(cls, source: str, text: str, reliability: float = 0.5) -> "Evidence":
+    def build(cls, source: str, text: str, reliability: float = 0.5) -> Evidence:
         normalized = " ".join(text.split())
         return cls(
             source=source,
@@ -93,7 +94,7 @@ class AuditEvent:
     previous_hash: str = "GENESIS"
     event_hash: str = ""
 
-    def seal(self) -> "AuditEvent":
+    def seal(self) -> AuditEvent:
         canonical = json.dumps(
             {
                 "event_id": self.event_id,
@@ -264,16 +265,20 @@ class EntityExtractor:
 class PolicyGate:
     """Explicit authorization gate for high-impact operations."""
 
-    HIGH_IMPACT_ACTIONS = {
-        "deploy_production",
-        "merge_protected_branch",
-        "delete_resource",
-        "rotate_secret",
-        "change_access_control",
-        "send_external_message",
-        "financial_transaction",
-        "collect_personal_data",
-    }
+    # Frozen: a mutable class-level set is shared by every instance, so one
+    # runtime .discard() would silently disable the gate for all of them.
+    HIGH_IMPACT_ACTIONS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "deploy_production",
+            "merge_protected_branch",
+            "delete_resource",
+            "rotate_secret",
+            "change_access_control",
+            "send_external_message",
+            "financial_transaction",
+            "collect_personal_data",
+        }
+    )
 
     def evaluate(
         self,
