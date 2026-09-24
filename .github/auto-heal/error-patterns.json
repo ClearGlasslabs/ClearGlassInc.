@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "patterns": [
+    {
+      "pattern": "(?:AssertionError|\\bFAILED\\b|tests? failed|pytest.*error)",
+      "category": "TEST_FAILURE",
+      "strategy": "Diagnose failing assertions and patch only when expected behavior is unambiguous."
+    },
+    {
+      "pattern": "(?:eslint|prettier|ruff|flake8|pylint|lint(?:ing)? failed|format(?:ting)? check failed)",
+      "category": "LINT_ERROR",
+      "strategy": "Apply deterministic formatter/linter corrections without suppressing rules."
+    },
+    {
+      "pattern": "(?:Build failed|Compilation failed|error TS\\d+|webpack.*(?:error|failed)|vite.*build.*failed)",
+      "category": "BUILD_ERROR",
+      "strategy": "Repair the smallest compilation/configuration defect and preserve build semantics."
+    },
+    {
+      "pattern": "(?:ModuleNotFoundError|Cannot find module|ERESOLVE|No matching distribution|Could not resolve dependency|lockfile.*out of date)",
+      "category": "DEPENDENCY_ERROR",
+      "strategy": "Prefer compatible pin/lockfile repair; major upgrades require human review."
+    },
+    {
+      "pattern": "(?:Invalid workflow file|YAML.*(?:error|invalid)|Unexpected value|Unrecognized named-value|not allowed in reusable workflow|workflow is not valid)",
+      "category": "CONFIG_ERROR",
+      "strategy": "Use deterministic workflow repair when available and open a PR for review."
+    },
+    {
+      "pattern": "(?:timed out|The operation was canceled|runner.*(?:lost|offline)|rate limit|Service Unavailable|ECONNRESET|ETIMEDOUT|502 Bad Gateway|503 Service Unavailable)",
+      "category": "INFRASTRUCTURE_ERROR",
+      "strategy": "Re-run failed jobs within the bounded retry policy before escalating."
+    },
+    {
+      "pattern": "(?:CodeQL|SARIF|security scan|dependency review|secret scanning|vulnerability.*(?:found|detected))",
+      "category": "SECURITY_SCAN_FAILURE",
+      "strategy": "Never weaken scanning; preserve evidence and require human review."
+    },
+    {
+      "pattern": "(?:deployment failed|deploy-pages|Pages deployment|Azure login|kubectl|terraform apply|helm.*failed|environment protection rule)",
+      "category": "DEPLOYMENT_ERROR",
+      "strategy": "Diagnose deployment/configuration state; infrastructure and credential changes require human review."
+    }
+  ]
+}

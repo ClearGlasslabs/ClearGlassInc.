@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "global": {"max_failures_per_cycle": 5, "scan_limit": 50, "never_force_push": true, "auto_merge": false},
+  "strategies": {
+    "TEST_FAILURE": {"retry_limit": 1, "human_review_required": true, "automatic_actions": ["diagnose", "issue"]},
+    "LINT_ERROR": {"retry_limit": 0, "human_review_required": false, "automatic_actions": ["diagnose", "deterministic_fix", "pull_request"]},
+    "BUILD_ERROR": {"retry_limit": 0, "human_review_required": true, "automatic_actions": ["diagnose", "issue"]},
+    "DEPENDENCY_ERROR": {"retry_limit": 0, "human_review_required": true, "automatic_actions": ["diagnose", "issue"]},
+    "INFRASTRUCTURE_ERROR": {"retry_limit": 2, "human_review_required": false, "automatic_actions": ["rerun_failed_jobs", "escalate_after_retries"]},
+    "CONFIG_ERROR": {"retry_limit": 0, "human_review_required": true, "automatic_actions": ["workflow_doctor", "pull_request"]},
+    "SECURITY_SCAN_FAILURE": {"retry_limit": 0, "human_review_required": true, "automatic_actions": ["diagnose", "issue"]},
+    "DEPLOYMENT_ERROR": {"retry_limit": 1, "human_review_required": true, "automatic_actions": ["diagnose", "issue"]},
+    "UNKNOWN_FAILURE": {"retry_limit": 0, "human_review_required": true, "automatic_actions": ["diagnose", "issue"]}
+  }
+}
