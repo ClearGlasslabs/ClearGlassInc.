@@ -1,4 +1,28 @@
 {
   "schema_version": 1,
-  "entries": []
+  "entries": [
+    {
+      "handled_at": "2026-10-02T10:33:54.512215+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "CAPE Prompt Optimization",
+      "run_id": 36428816968,
+      "run_attempt": 1,
+      "commit_sha": "90facad67da64df25364825aa3f83a1506c384e4",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/36428816968",
+      "diagnostics": [
+        {
+          "job": "optimize",
+          "job_id": 108949399939,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    }
+  ]
 }
