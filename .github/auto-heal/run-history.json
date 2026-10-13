@@ -1,4 +1,74 @@
 {
   "schema_version": 1,
-  "entries": []
+  "entries": [
+    {
+      "handled_at": "2026-10-13T11:53:37.879096+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "CAPE Prompt Optimization",
+      "run_id": 38267014147,
+      "run_attempt": 1,
+      "commit_sha": "da85477339cb2f1d3bbafc58fc20e19d427f71cd",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/38267014147",
+      "diagnostics": [
+        {
+          "job": "optimize",
+          "job_id": 114871606631,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-13T11:53:39.823074+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Security Baseline",
+      "run_id": 38157914435,
+      "run_attempt": 1,
+      "commit_sha": "22edd100a2fcf07b94ab89a9e34f92d73c780697",
+      "branch": "fix/live-feed-reliability",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/38157914435",
+      "diagnostics": [
+        {
+          "job": "scan",
+          "job_id": 114524598313,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-13T11:53:41.697899+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "CAPE Prompt Optimization",
+      "run_id": 37322692155,
+      "run_attempt": 1,
+      "commit_sha": "d082c3121f568b0c47a910034e1b628b4912bf5d",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/37322692155",
+      "diagnostics": [
+        {
+          "job": "optimize",
+          "job_id": 111805498472,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    }
+  ]
 }

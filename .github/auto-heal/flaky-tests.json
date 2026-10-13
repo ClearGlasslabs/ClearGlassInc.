@@ -1,4 +1,12 @@
 {
   "schema_version": 1,
-  "tests": []
+  "tests": [
+    {
+      "workflow": "CAPE Prompt Optimization",
+      "job": "optimize",
+      "observed_failures": 2,
+      "first_flagged_at": "2026-10-13T11:53:41.697932+00:00",
+      "status": "candidate"
+    }
+  ]
 }
