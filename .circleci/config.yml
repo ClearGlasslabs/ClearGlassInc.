@@ -4,6 +4,10 @@ jobs:
   validate-artemis-api:
     docker:
       - image: cimg/node:20.19
+      - image: redis:7-alpine
+    environment:
+      REDIS_URL: redis://redis:6379/15
+      STRIPE_REDIS_INTEGRATION_TESTS: "true"
     working_directory: ~/project
     steps:
       - checkout
