@@ -1,6 +1,6 @@
 # Stripe Checkout deployment
 
-This service creates hosted Stripe Checkout Sessions and verifies Stripe webhook signatures before publishing billing events.
+This service creates hosted Stripe Checkout Sessions and verifies Stripe webhook signatures before atomically accepting events into the Redis Stream `billing.subscription.events`. Queue acceptance is not itself payment fulfillment or entitlement activation.
 
 ## Required configuration
 
@@ -21,18 +21,15 @@ Create a webhook destination pointing to:
 
 `https://YOUR_API_HOST/v1/webhooks/stripe`
 
-Subscribe only to events the billing workflow consumes. Recommended starting events:
+Subscribe to this exact ClearGlass event set:
 
 - `checkout.session.completed`
-- `checkout.session.async_payment_succeeded`
-- `checkout.session.async_payment_failed`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
 - `invoice.paid`
 - `invoice.payment_failed`
+- `customer.subscription.deleted`
+- `charge.dispute.created`
 
-Copy the endpoint signing secret into `STRIPE_WEBHOOK_SECRET`.
+Copy the signing secret for this exact endpoint into `STRIPE_WEBHOOK_SECRET`. Keep test and live endpoint secrets separate. Do not register the live endpoint until the production API URL is confirmed and the downstream billing-event consumer has passed an end-to-end test.
 
 ## Create a Checkout Session
 
@@ -62,12 +59,12 @@ Redirect the browser to `url`. Never collect card numbers directly in this API.
 
 GitHub Actions secrets are only needed when a workflow deploys the application. Add secrets at the environment or repository level and map them into the deployment job. Do not expose Stripe secrets to pull-request workflows from forks, build logs, client-side bundles, or static GitHub Pages.
 
-## Security controls implemented
+## Webhook delivery and release gates
 
-- Stripe SDK signature verification over the exact raw body.
-- Server-side Price ID allowlist.
-- Quantity bounds.
-- HTTPS enforcement for production redirects.
-- Seven-day webhook idempotency window.
-- Sanitized error responses and logs.
-- Hosted Checkout so payment-card data does not traverse ClearGlass infrastructure.
+- The route uses `express.raw({ type: "application/json" })` before any JSON parsing and passes the original Buffer to Stripe's official SDK. The SDK checks the signature and timestamp tolerance.
+- Test/live event mode must match the configured Stripe API key mode.
+- A Redis Lua script atomically checks the seven-day event-ID idempotency key and appends the signed event to the `billing.subscription.events` Redis Stream.
+- A verified duplicate returns HTTP 200. Missing server configuration or Redis enqueue failures return non-2xx so Stripe retries. Invalid signatures return HTTP 400.
+- The app currently has **no billing-event consumer**: queueing is durable intake, not proof that subscriptions, orders, disputes, entitlements, or fulfillment have been updated. Do not claim successful fulfillment until that consumer exists and an end-to-end test proves it.
+- Do not log signing secrets, signature values, raw request bodies, or full Stripe events.
+- Server-side Price ID allowlist, quantity bounds, HTTPS enforcement for production redirects, and hosted Checkout remain in place so card data does not traverse ClearGlass infrastructure.
