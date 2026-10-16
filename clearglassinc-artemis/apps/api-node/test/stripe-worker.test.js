@@ -98,13 +98,12 @@ test("stream worker records failed payment without marking subscription canceled
     const redis = fakeRedis();
     await processEntry(redis, fakeStripe({ invoiceStatus: "open", subscriptionStatus: "past_due" }), "1710000000001-0", fields(event));
 
-    const serializedState = redis.calls.eval[0].at(-1);
-    assert.equal(typeof serializedState, "string");
-    const record = JSON.parse(serializedState);
-    assert.equal(record.paymentOutcome, "payment_failed");
+    const serializedInvoice = redis.calls.eval[0].at(-5);
+    const invoiceRecord = JSON.parse(serializedInvoice);
+    assert.equal(invoiceRecord.paymentOutcome, "payment_failed");
     // Subscription is a second record in this same atomic Lua transaction.
     const serializedSubscription = redis.calls.eval[0].at(-1);
-    assert.equal(typeof serializedSubscription, "string");
+    assert.equal(JSON.parse(serializedSubscription).status, "past_due");
     assert.deepEqual(redis.calls.ack, [["billing.subscription.events", "billing-consumer-v1", "1710000000001-0"]]);
   } finally {
     if (previousKey === undefined) delete process.env.STRIPE_SECRET_KEY;
