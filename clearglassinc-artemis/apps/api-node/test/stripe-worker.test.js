@@ -122,7 +122,8 @@ test("stream worker retries errors and atomically dead-letters after max attempt
     assert.deepEqual(redis.calls.incr, [["stripe:consumer:attempts:1710000000002-0"]]);
     assert.deepEqual(redis.calls.expire, [["stripe:consumer:attempts:1710000000002-0", 604800]]);
     assert.equal(redis.calls.eval.length, 1);
-    assert.match(redis.calls.eval[0][0], /DEAD LETTER|billing\.subscription\.events\.dead|dead/i);
+    assert.match(redis.calls.eval[0][0], /XADD/);
+    assert.match(redis.calls.eval[0][0], /XACK/);
     assert.equal(redis.calls.eval[0][1], 3);
     assert.equal(redis.calls.eval[0][2], "billing.subscription.events");
     assert.equal(redis.calls.eval[0][3], "billing.subscription.events.dead");
