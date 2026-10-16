@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { redis } from "./redis.js";
 import { publish } from "./bus.js";
 import { createStripeWebhookHandler } from "./stripe-webhook.js";
+import { isApprovedCheckoutPrice, resolveCheckoutMode } from "./billing-config.js";
 import { rateLimit, requireRole, requireTrustedOrigin, securityHeaders, validEmail, validIdentifier, verifyHmac } from "./security.js";
 
 const app = express();
@@ -65,8 +66,13 @@ app.post("/v1/billing/checkout-sessions", requireTrustedOrigin, rateLimit({ limi
   }
 
   try {
+    const price = await stripe.prices.retrieve(priceId);
+    if (!isApprovedCheckoutPrice(price, priceId, allowlist, process.env.STRIPE_SECRET_KEY)) {
+      return res.status(400).json({ error: "invalid_or_unapproved_price" });
+    }
+    const mode = resolveCheckoutMode(price);
     const session = await stripe.checkout.sessions.create({
-      mode: process.env.STRIPE_CHECKOUT_MODE === "subscription" ? "subscription" : "payment",
+      mode,
       line_items: [{ price: priceId, quantity }],
       customer_email: customerEmail,
       client_reference_id:
