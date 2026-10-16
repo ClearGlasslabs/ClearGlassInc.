@@ -169,5 +169,5 @@ test("billing effects use one atomic Redis script for state updates and processe
   assert.equal(calls[0][2], "billing:stripe:consumer-processed:evt_apply_once");
   assert.match(calls[0][0], /EXISTS/);
   assert.match(calls[0][0], /SET/);
-  assert.equal(JSON.parse(calls[0][7]).paymentOutcome, "paid");
+  assert.equal(JSON.parse(calls[0][10]).paymentOutcome, "paid");
 });
