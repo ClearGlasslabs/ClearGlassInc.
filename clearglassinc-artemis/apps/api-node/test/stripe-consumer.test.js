@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import Redis from "ioredis";
+import { enqueueStripeEventOnce } from "../src/bus.js";
 import {
   STRIPE_BILLING_EVENT_TYPES,
   applyStripeBillingEffects,
@@ -170,4 +172,89 @@ test("billing effects use one atomic Redis script for state updates and processe
   assert.match(calls[0][0], /EXISTS/);
   assert.match(calls[0][0], /SET/);
   assert.equal(JSON.parse(calls[0][10]).paymentOutcome, "paid");
+});
+
+
+test("real Redis scripts atomically enqueue, apply once, and reject stale state", {
+  skip: process.env.STRIPE_REDIS_INTEGRATION_TESTS !== "true",
+}, async () => {
+  const redisUrl = process.env.REDIS_URL;
+  assert.ok(redisUrl, "REDIS_URL is required when Redis integration tests are enabled");
+  const parsedUrl = new URL(redisUrl);
+  assert.ok(["localhost", "127.0.0.1", "redis"].includes(parsedUrl.hostname),
+    "Redis integration tests may only target a local CI Redis service");
+  assert.equal(parsedUrl.port || "6379", "6379");
+  assert.equal(parsedUrl.pathname, "/15", "Redis integration tests are restricted to database 15");
+
+  const redis = new Redis(redisUrl, { connectTimeout: 3000, maxRetriesPerRequest: 1 });
+  const id = "evt_redis_integration_" + crypto.randomUUID();
+  const recordKey = "billing:stripe:integration:" + id;
+  try {
+    await redis.ping();
+    // DB 15 is an isolated throwaway database in CI only.
+    await redis.flushdb();
+
+    const stripeEvent = {
+      id,
+      type: "invoice.paid",
+      created: now,
+      livemode: false,
+      data: { object: { id: "in_" + id } },
+    };
+    assert.equal(await enqueueStripeEventOnce(redis, stripeEvent), true);
+    assert.equal(await enqueueStripeEventOnce(redis, stripeEvent), false);
+
+    const queued = await redis.xrange("billing.subscription.events", "-", "+");
+    assert.equal(queued.length, 1);
+    const fields = Object.fromEntries(
+      Array.from({ length: queued[0][1].length / 2 }, (_, i) => [
+        queued[0][1][i * 2],
+        queued[0][1][i * 2 + 1],
+      ]),
+    );
+    assert.equal(fields.event_id, id);
+    assert.equal(JSON.parse(fields.payload).type, "invoice.paid");
+
+    const effects = {
+      eventId: id,
+      eventType: "invoice.paid",
+      eventCreated: now,
+      records: [{
+        key: recordKey,
+        rank: 2,
+        state: {
+          eventId: id,
+          eventType: "invoice.paid",
+          eventCreated: now,
+          _terminalRank: 2,
+          paymentOutcome: "paid",
+        },
+      }],
+    };
+    assert.equal(await applyStripeBillingEffects(redis, effects), true);
+    assert.equal(await applyStripeBillingEffects(redis, effects), false);
+    assert.equal(JSON.parse(await redis.get(recordKey)).paymentOutcome, "paid");
+
+    const olderState = {
+      eventId: id + "_old",
+      eventType: "customer.subscription.updated",
+      eventCreated: now - 30,
+      records: [{
+        key: recordKey,
+        rank: 0,
+        state: {
+          eventId: id + "_old",
+          eventType: "customer.subscription.updated",
+          eventCreated: now - 30,
+          _terminalRank: 0,
+          paymentOutcome: "stale_unpaid",
+        },
+      }],
+    };
+    assert.equal(await applyStripeBillingEffects(redis, olderState), true);
+    assert.equal(JSON.parse(await redis.get(recordKey)).paymentOutcome, "paid");
+  } finally {
+    await redis.flushdb();
+    await redis.quit();
+  }
 });
