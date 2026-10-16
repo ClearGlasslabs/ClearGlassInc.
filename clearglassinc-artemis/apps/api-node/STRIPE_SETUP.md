@@ -8,8 +8,7 @@ Set these values in the deployment platform's encrypted environment/secrets stor
 
 - `STRIPE_SECRET_KEY`: restricted or secret API key for the intended Stripe account; configure the same mode/account key in both the API and worker services.
 - `STRIPE_WEBHOOK_SECRET`: signing secret for this exact webhook endpoint, on the API service only.
-- `STRIPE_ALLOWED_PRICE_IDS`: comma-separated allowlist of Stripe Price IDs.
-- `STRIPE_CHECKOUT_MODE`: `payment` or `subscription`.
+- `STRIPE_ALLOWED_PRICE_IDS`: comma-separated allowlist of Price IDs that exist in the same Stripe mode as the configured API key. Configure a mode-specific list for the test deployment and a separately verified list for production.
 - `STRIPE_SUCCESS_URL`: HTTPS return URL after successful Checkout.
 - `STRIPE_CANCEL_URL`: HTTPS return URL after cancellation.
 
@@ -55,11 +54,11 @@ Successful response:
 }
 ```
 
-Redirect the browser to `url`. Never collect card numbers directly in this API.
+Checkout mode is derived from the retrieved Price: active allowlisted one-time prices use payment mode; recurring prices use subscription mode. Inactive, inconsistent, non-allowlisted, or wrong-mode prices are rejected. Redirect the browser to `url`. Never collect card numbers directly in this API.
 
 ## GitHub Actions secrets
 
-GitHub Actions secrets are only needed when a workflow deploys the application. Add secrets at the environment or repository level and map them into the deployment job. Do not expose Stripe secrets to pull-request workflows from forks, build logs, client-side bundles, or static GitHub Pages.
+Configure the following GitHub Actions secrets in the protected `production` environment or the repository secret store: `RENDER_DEPLOY_HOOK_URL` (the API service hook) and `RENDER_WORKER_DEPLOY_HOOK_URL` (the worker service hook). Retrieve each secret URL from that service’s Render Settings page; never paste either value into code, issues, Slack, or logs. The workflow requires both hooks and deploys the exact validated commit to both services. Render hook URLs cannot be inferred from a hostname. Do not expose Stripe secrets to pull-request workflows from forks, build logs, client-side bundles, or static GitHub Pages.
 
 ## Webhook delivery and release gates
 
@@ -71,6 +70,6 @@ GitHub Actions secrets are only needed when a workflow deploys the application. 
 - The consumer maintains checkout, invoice, subscription-lifecycle, dispute, and customer-risk ledger records. Failed invoice payments are recorded without fabricating cancellation. Disputes are flagged for review and do not automatically refund payments or revoke all access.
 - A verified duplicate returns HTTP 200. Missing server configuration or Redis enqueue failures return non-2xx so Stripe retries. Invalid signatures return HTTP 400.
 - The billing ledger deliberately remains `billingAccessState: "unlinked"`: there is no authenticated application-user-to-Stripe-customer mapping in this repository. This worker therefore does **not** grant or revoke premium entitlements or claim fulfillment. That separate identity/authorization model and an end-to-end signed test-mode run are release gates.
-- CI runs the enqueue/idempotency Lua scripts against an isolated local Redis database 15. Test-mode endpoint delivery is still separate from CI and must be proven against the deployed host before the live endpoint is created.
+- CI runs the enqueue/idempotency Lua scripts against an isolated local Redis database 15. Test-mode endpoint delivery is still separate from CI and must be proven against the deployed host before the live endpoint is created. Set `STRIPE_SECRET_KEY` separately on the API and worker services using the same test-mode account/key during test acceptance; set the API-only `STRIPE_WEBHOOK_SECRET` to the test endpoint secret, and configure the API `STRIPE_ALLOWED_PRICE_IDS` with approved test-mode prices. Use different values for production. Do not create the production webhook endpoint until the deployed test-mode endpoint and worker pass signed event, duplicate-delivery, invoice-failure, invoice-paid, cancellation, and dispute tests.
 - Do not log signing secrets, signature values, raw request bodies, or full Stripe events.
 - Server-side Price ID allowlist, quantity bounds, HTTPS enforcement for production redirects, and hosted Checkout remain in place so card data does not traverse ClearGlass infrastructure.
