@@ -77,11 +77,11 @@ function normalizeSubscription(subscription, event, terminal = false) {
     .filter(Boolean);
   const currentPeriodEnd = unixSeconds(subscription.current_period_end) ??
     (itemPeriodEnds.length ? Math.max(...itemPeriodEnds) : null);
+  const itemPeriodStarts = (subscription.items?.data ?? [])
+    .map((item) => unixSeconds(item.current_period_start))
+    .filter(Boolean);
   const currentPeriodStart = unixSeconds(subscription.current_period_start) ??
-    (subscription.items?.data ?? [])
-      .map((item) => unixSeconds(item.current_period_start))
-      .filter(Boolean)
-      .reduce((max, value) => Math.max(max, value), 0) || null;
+    (itemPeriodStarts.length ? Math.min(...itemPeriodStarts) : null);
 
   return createRecord("subscription", subId, {
     stripeCustomerId: idOf(subscription.customer),
