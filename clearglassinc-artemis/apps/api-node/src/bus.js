@@ -1,6 +1,4 @@
 // Non-billing notifications are metadata-only until a production bus adapter is configured.
-import { redis } from "./redis.js";
-
 export async function publish(topic, message) {
   const safeMetadata = { id: message?.id ?? message?.event?.id ?? message?.action_id, type: message?.event?.type, decision: message?.decision };
   console.log(JSON.stringify({ event: "bus.publish", topic, metadata: safeMetadata }));
