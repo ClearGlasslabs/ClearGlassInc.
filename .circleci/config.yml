@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  validate-artemis-api:
+    docker:
+      - image: cimg/node:20.19
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run:
+          name: Install API dependencies
+          command: cd clearglassinc-artemis/apps/api-node && npm install
+      - run:
+          name: Test Stripe webhook security and API helpers
+          command: cd clearglassinc-artemis/apps/api-node && npm test
+
+workflows:
+  validate:
+    jobs:
+      - validate-artemis-api
