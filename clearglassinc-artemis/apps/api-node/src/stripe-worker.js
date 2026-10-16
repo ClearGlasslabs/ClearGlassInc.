@@ -1,4 +1,5 @@
 import os from "node:os";
+import { pathToFileURL } from "node:url";
 import Redis from "ioredis";
 import Stripe from "stripe";
 import {
@@ -75,7 +76,7 @@ async function deadLetter(redis, streamId, fields, attempts, error) {
   });
 }
 
-async function processEntry(redis, stripe, streamId, fields) {
+export async function processEntry(redis, stripe, streamId, fields) {
   const values = fieldsToObject(fields);
   const attemptsKey = "stripe:consumer:attempts:" + streamId;
 
@@ -201,9 +202,11 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error("Stripe billing consumer stopped", {
-    errorType: error instanceof Error ? error.name : "Error",
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error("Stripe billing consumer stopped", {
+      errorType: error instanceof Error ? error.name : "Error",
+    });
+    process.exitCode = 1;
   });
-  process.exitCode = 1;
-});
+}
