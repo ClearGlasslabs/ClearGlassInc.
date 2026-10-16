@@ -2,8 +2,8 @@ import express from "express";
 import crypto from "node:crypto";
 import Stripe from "stripe";
 import { redis } from "./redis.js";
-import { publish } from "./bus.js";
-import { enqueueStripeEventOnce, verifyStripeEvent } from "./stripe-webhook.js";
+import { enqueueStripeEventOnce, publish } from "./bus.js";
+import { verifyStripeEvent } from "./stripe-webhook.js";
 import { rateLimit, requireRole, requireTrustedOrigin, securityHeaders, validEmail, validIdentifier, verifyHmac } from "./security.js";
 
 const app = express();
