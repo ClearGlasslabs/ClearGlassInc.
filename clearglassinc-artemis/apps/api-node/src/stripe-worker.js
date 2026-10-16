@@ -14,6 +14,7 @@ const DEAD_LETTER_STREAM = "billing.subscription.events.dead";
 const MAX_ATTEMPTS = 5;
 const PENDING_IDLE_MS = 60_000;
 const ATTEMPT_TTL_SECONDS = 604_800;
+const PROCESSED_EVENT_TTL_SECONDS = Number(process.env.STRIPE_PROCESSED_EVENT_TTL_SECONDS ?? 31_536_000);
 
 const MOVE_TO_DEAD_LETTER_SCRIPT = [
   "redis.call('XADD', KEYS[2], '*',",
@@ -99,7 +100,9 @@ async function processEntry(redis, stripe, streamId, fields) {
     const effects = eventClass(event.type) === "supported"
       ? await buildStripeBillingEffects(event, stripe)
       : { eventId: event.id, eventType: event.type, eventCreated: event.created ?? 0, records: [] };
-    await applyStripeBillingEffects(redis, effects);
+    await applyStripeBillingEffects(redis, effects, {
+      processedEventTtlSeconds: PROCESSED_EVENT_TTL_SECONDS,
+    });
 
     await redis.xack(STREAM, GROUP, streamId);
     await redis.del(attemptsKey);
