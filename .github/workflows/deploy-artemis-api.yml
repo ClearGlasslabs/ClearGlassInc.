@@ -29,12 +29,27 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      REDIS_URL: redis://localhost:6379/15
+      STRIPE_REDIS_INTEGRATION_TESTS: "true"
+      STRIPE_E2E_REDIS_URL: redis://localhost:6379/14
+      STRIPE_E2E_INTEGRATION_TESTS: "true"
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: "20"
 
@@ -56,20 +71,31 @@ jobs:
     environment: production
     timeout-minutes: 5
     steps:
-      - name: Require Render deploy hook
+      - name: Require Render API and worker deploy hooks
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_WORKER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_WORKER_DEPLOY_HOOK_URL }}
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
             echo "RENDER_DEPLOY_HOOK_URL is not configured." >&2
             exit 1
           fi
+          if [ -z "$RENDER_WORKER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_WORKER_DEPLOY_HOOK_URL is not configured." >&2
+            exit 1
+          fi
 
-      - name: Trigger exact-commit deployment
+      - name: Trigger exact-commit deployment for API and worker
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_WORKER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_WORKER_DEPLOY_HOOK_URL }}
         run: |
-          separator='?'
-          case "$RENDER_DEPLOY_HOOK_URL" in *\?*) separator='&' ;; esac
-          curl --fail --show-error --silent --request POST \
-            "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${GITHUB_SHA}"
+          trigger_deploy() {
+            hook_url="$1"
+            separator='?'
+            case "$hook_url" in *\?*) separator='&' ;; esac
+            curl --fail --show-error --silent --request POST \
+              "${hook_url}${separator}ref=${GITHUB_SHA}"
+          }
+          trigger_deploy "$RENDER_DEPLOY_HOOK_URL"
+          trigger_deploy "$RENDER_WORKER_DEPLOY_HOOK_URL"

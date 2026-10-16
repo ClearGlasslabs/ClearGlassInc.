@@ -26,8 +26,6 @@ services:
         sync: false
       - key: STRIPE_ALLOWED_PRICE_IDS
         sync: false
-      - key: STRIPE_CHECKOUT_MODE
-        value: payment
       - key: STRIPE_SUCCESS_URL
         value: https://www.clearglassinc.com/payment/success?session_id={CHECKOUT_SESSION_ID}
       - key: STRIPE_CANCEL_URL
@@ -42,6 +40,27 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         value: https://www.clearglassinc.com
+
+  - type: worker
+    name: clearglass-stripe-worker
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./clearglassinc-artemis/apps/api-node/Dockerfile
+    dockerContext: ./clearglassinc-artemis/apps/api-node
+    dockerCommand: npm run worker
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: clearglass-artemis-redis
+          property: connectionString
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PROCESSED_EVENT_TTL_SECONDS
+        value: "31536000"
 
   - type: keyvalue
     name: clearglass-artemis-redis
