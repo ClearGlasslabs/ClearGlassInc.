@@ -8,6 +8,8 @@ jobs:
     environment:
       REDIS_URL: redis://redis:6379/15
       STRIPE_REDIS_INTEGRATION_TESTS: "true"
+      STRIPE_E2E_REDIS_URL: redis://redis:6379/14
+      STRIPE_E2E_INTEGRATION_TESTS: "true"
     working_directory: ~/project
     steps:
       - checkout
