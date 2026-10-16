@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import test from "node:test";
 import Redis from "ioredis";
 import { enqueueStripeEventOnce } from "../src/bus.js";
