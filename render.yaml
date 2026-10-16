@@ -26,8 +26,6 @@ services:
         sync: false
       - key: STRIPE_ALLOWED_PRICE_IDS
         sync: false
-      - key: STRIPE_CHECKOUT_MODE
-        value: payment
       - key: STRIPE_SUCCESS_URL
         value: https://www.clearglassinc.com/payment/success?session_id={CHECKOUT_SESSION_ID}
       - key: STRIPE_CANCEL_URL
