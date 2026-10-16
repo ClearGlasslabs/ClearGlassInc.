@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import Stripe from "stripe";
 import { redis } from "./redis.js";
 import { publish } from "./bus.js";
+import { enqueueStripeEventOnce, verifyStripeEvent } from "./stripe-webhook.js";
 import { rateLimit, requireRole, requireTrustedOrigin, securityHeaders, validEmail, validIdentifier, verifyHmac } from "./security.js";
 
 const app = express();
@@ -41,39 +42,48 @@ function safeCheckoutUrl(value, fallback) {
 }
 
 // Stripe requires the exact raw request body for signature verification.
-app.post("/v1/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
+app.post("/v1/webhooks/stripe", express.raw({ type: "application/json", limit: "2mb" }), async (req, res) => {
   if (!requireStripe(res)) return;
 
   const signature = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!signature || !webhookSecret) {
-    return res.status(400).json({ error: "missing_stripe_signature_or_secret" });
+  if (!signature) {
+    return res.status(400).json({ error: "missing_stripe_signature" });
+  }
+  if (!webhookSecret) {
+    // Configuration fault, not a bad request: keep the endpoint closed and let Stripe retry.
+    return res.status(503).json({ error: "webhook_not_configured" });
   }
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
+    event = verifyStripeEvent(stripe, req.body, signature, webhookSecret);
   } catch (error) {
-    console.warn("Stripe webhook verification failed", { message: error.message });
-    return res.status(400).json({ error: "invalid_signature" });
+    // Do not echo signature/parser details or request payloads to the caller or logs.
+    console.warn("Stripe webhook verification failed", {
+      errorType: error instanceof Error ? error.name : "Error",
+    });
+    return res.status(400).json({ error: "invalid_signature_or_payload" });
   }
 
-  const idemKey = `idem:stripe:${event.id}`;
-  if (await redis.get(idemKey)) return res.status(200).json({ duplicate: true });
+  // A test endpoint must never silently accept live-mode events (or vice versa).
+  const configuredLiveMode = /^(?:sk|rk)_live_/.test(process.env.STRIPE_SECRET_KEY ?? "");
+  if (Boolean(event.livemode) !== configuredLiveMode) {
+    return res.status(400).json({ error: "webhook_mode_mismatch" });
+  }
 
-  await redis.set(idemKey, "1", "EX", 604800);
-  await publish("billing.subscription.events", {
-    provider: "stripe",
-    event: {
-      id: event.id,
-      type: event.type,
-      created: event.created,
-      livemode: event.livemode,
-      data: event.data,
-    },
-  });
+  try {
+    const enqueued = await enqueueStripeEventOnce(redis, event);
+    if (!enqueued) return res.status(200).json({ received: true, duplicate: true });
+  } catch (error) {
+    // Returning non-2xx is deliberate: Stripe should retry when the durable inbox is unavailable.
+    console.error("Stripe webhook durable enqueue failed", {
+      errorType: error instanceof Error ? error.name : "Error",
+    });
+    return res.status(503).json({ error: "webhook_delivery_unavailable" });
+  }
 
-  return res.status(202).json({ accepted: true });
+  return res.status(202).json({ received: true, queued: true });
 });
 
 // Hosted Checkout keeps card data off ClearGlass infrastructure.
