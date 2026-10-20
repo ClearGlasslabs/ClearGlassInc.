@@ -1,4 +1,74 @@
 {
   "schema_version": 1,
-  "entries": []
+  "entries": [
+    {
+      "handled_at": "2026-10-20T09:29:08.070076+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "CAPE Prompt Optimization",
+      "run_id": 39254361565,
+      "run_attempt": 1,
+      "commit_sha": "27e159649102902bceaffac4cfcae86cdb708d9a",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39254361565",
+      "diagnostics": [
+        {
+          "job": "optimize",
+          "job_id": 118065802624,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-20T09:29:09.992793+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Deploy Artemis API",
+      "run_id": 38946853934,
+      "run_attempt": 1,
+      "commit_sha": "27e159649102902bceaffac4cfcae86cdb708d9a",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/38946853934",
+      "diagnostics": [
+        {
+          "job": "deploy",
+          "job_id": 117128262097,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-20T09:29:12.058306+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Security Baseline",
+      "run_id": 38945593218,
+      "run_attempt": 1,
+      "commit_sha": "021b32ea8512924a1fcb8524f864c1194e5d84e2",
+      "branch": "feat/stripe-durable-consumer",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/38945593218",
+      "diagnostics": [
+        {
+          "job": "scan",
+          "job_id": 117123916582,
+          "conclusion": "cancelled",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    }
+  ]
 }
