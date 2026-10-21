@@ -4,6 +4,7 @@ export const CHALLENGE_TTL_MINUTES = 15;
 export const SESSION_ABSOLUTE_SECONDS = 14 * 86_400;
 export const SESSION_IDLE_SECONDS = 3 * 86_400;
 const TOUCH_AFTER_SECONDS = 300;
+const CLEANUP_PROBABILITY = 0.01;
 
 export const COOKIE_NAME = (ctx) => (ctx.secureCookies ? "__Host-cg_session" : "cg_session");
 
@@ -52,10 +53,13 @@ export async function consumeRateLimit(db, ctx, scope, key, limit, windowSeconds
      where scope = $1 and key_hash = $2 and created_at > now() - make_interval(secs => $3)`,
     [scope, keyHash, windowSeconds],
   );
-  if (Math.random() < 0.01) {
-    await db.query("delete from rate_limit_events where created_at < now() - interval '1 day'").catch(() => {});
-    await db.query("delete from auth_challenges where expires_at < now() - interval '1 day'").catch(() => {});
-    await db.query("delete from sessions where expires_at < now() - interval '1 day'").catch(() => {});
+  if (Math.random() < CLEANUP_PROBABILITY) {
+    // Fire-and-forget housekeeping (indexed deletes); failures are harmless and retried on a later request.
+    for (const sql of [
+      "delete from rate_limit_events where created_at < now() - interval '1 day'",
+      "delete from auth_challenges where expires_at < now() - interval '1 day'",
+      "delete from sessions where expires_at < now() - interval '1 day'",
+    ]) db.query(sql).catch(() => {});
   }
   // The statement's snapshot excludes the row it inserted, so count + 1 includes this attempt.
   return rows[0].n + 1 <= limit;

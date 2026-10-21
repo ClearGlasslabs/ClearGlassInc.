@@ -108,3 +108,5 @@ create table rate_limit_events (
   created_at timestamptz not null default now()
 );
 create index rate_limit_events_lookup_idx on rate_limit_events (scope, key_hash, created_at);
+create index rate_limit_events_created_idx on rate_limit_events (created_at);
+create index sessions_expires_idx on sessions (expires_at);

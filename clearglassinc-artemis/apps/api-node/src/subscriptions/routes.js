@@ -13,8 +13,11 @@ import { syncUserSubscriptions } from "./fulfillment.js";
 import { loginEmail } from "./mail.js";
 import { describeOffers } from "./offers.js";
 import { PAGE_CSP, dashboardPage, itemPage, libraryPage, loginPage, messagePage, verifyPage } from "./views.js";
-import { validEmail } from "../security.js";
+import { rateLimit, validEmail } from "../security.js";
 
+// Reuse of a Checkout Session for identical parameters within this window; the key also includes price, customer and tax
+// settings so a configuration change never collides with Stripe's idempotency parameter check.
+const CHECKOUT_IDEMPOTENCY_WINDOW_MS = 600_000;
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const loadCatalog = () => JSON.parse(fs.readFileSync(path.join(here, "content", "catalog.json"), "utf8"));
 
@@ -64,19 +67,21 @@ export function createSubscriptionRouter({ db, stripe, mailer, ctx, catalog = lo
     next();
   };
 
-  const sessionOptional = wrap(async (req, _res, next) => {
+  // Per-IP/path burst limit in front of every session lookup (durable limits sit on auth, checkout and billing actions).
+  const burstLimit = rateLimit({ limit: 120 });
+  const sessionOptional = [burstLimit, wrap(async (req, _res, next) => {
     const token = parseCookies(req.headers.cookie)[COOKIE_NAME(ctx)];
     const session = token ? await loadSession(db, ctx, token) : null;
     req.account = session;
     next();
-  });
-  const requireSession = [sessionOptional, (req, res, next) => (req.account ? next() : fail(res, 401, "unauthenticated"))];
+  })];
+  const requireSession = [...sessionOptional, (req, res, next) => (req.account ? next() : fail(res, 401, "unauthenticated"))];
   const requireCsrf = (req, res, next) => (safeEqual(req.get("x-csrf-token"), csrfTokenFor(ctx.authSecret, req.account.sessionId)) ? next() : fail(res, 403, "csrf_failed"));
   const mutating = [requireSameOrigin, ...requireSession, requireCsrf];
   const json = express.json({ limit: "4kb" });
 
   // --- Passwordless sign-in ----------------------------------------------
-  router.post("/account/api/auth/request", requireSameOrigin, json, wrap(async (req, res) => {
+  router.post("/account/api/auth/request", burstLimit, requireSameOrigin, json, wrap(async (req, res) => {
     if (!mailer) return fail(res, 503, "email_not_configured");
     const email = normalizeEmail(req.body?.email);
     if (!validEmail(email)) return fail(res, 400, "invalid_email");
@@ -97,12 +102,12 @@ export function createSubscriptionRouter({ db, stripe, mailer, ctx, catalog = lo
     res.status(202).json({ accepted: true });
   }));
 
-  router.get("/account/auth/verify", (req, res) => {
+  router.get("/account/auth/verify", burstLimit, (req, res) => {
     const token = typeof req.query.token === "string" ? req.query.token : "";
     res.set("Referrer-Policy", "no-referrer").type("html").send(verifyPage({ ctx, token }));
   });
 
-  router.post("/account/auth/verify", requireSameOrigin, express.urlencoded({ extended: false, limit: "4kb" }), wrap(async (req, res) => {
+  router.post("/account/auth/verify", burstLimit, requireSameOrigin, express.urlencoded({ extended: false, limit: "4kb" }), wrap(async (req, res) => {
     if (!(await consumeRateLimit(db, ctx, "auth_verify", req.ip, 30, 900))) return res.status(429).type("html").send(messagePage({ ctx, title: "Too many attempts", message: "Please wait a few minutes and try again." }));
     const result = await redeemChallenge(db, ctx, req.body?.token);
     if (!result) return res.status(400).type("html").send(messagePage({ ctx, title: "Link not valid", message: "This sign-in link is invalid, expired or already used. Request a new one." }));
@@ -192,7 +197,7 @@ export function createSubscriptionRouter({ db, stripe, mailer, ctx, catalog = lo
       cancel_url: `${ctx.appOrigin}/account?checkout=cancelled`,
       customer_update: ctx.automaticTax ? { address: "auto", name: "auto" } : undefined,
       automatic_tax: ctx.automaticTax ? { enabled: true } : undefined,
-    }, { idempotencyKey: `cg-checkout-${req.account.userId}-${offerDef.id}-${Math.floor(Date.now() / 600_000)}` });
+    }, { idempotencyKey: `cg-checkout-${req.account.userId}-${offer.priceId}-${customer}-${ctx.automaticTax}-${Math.floor(Date.now() / CHECKOUT_IDEMPOTENCY_WINDOW_MS)}` });
     await db.query("insert into billing_audit (user_id, action, detail) values ($1, 'checkout_started', $2)", [req.account.userId, JSON.stringify({ offer: offerDef.id, sessionId: session.id })]);
     res.status(201).json({ url: session.url });
   }));
