@@ -34,7 +34,21 @@ jobs:
       STRIPE_REDIS_INTEGRATION_TESTS: "true"
       STRIPE_E2E_REDIS_URL: redis://localhost:6379/14
       STRIPE_E2E_INTEGRATION_TESTS: "true"
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/artemis_ci
+      SUBSCRIPTIONS_PG_TEST_URL: postgres://postgres:postgres@localhost:5432/artemis_ci
     services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: artemis_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
       redis:
         image: redis:7-alpine
         ports:
@@ -55,7 +69,15 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ env.APP_DIR }}
-        run: npm install
+        run: npm ci
+
+      - name: Syntax check
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run check
+
+      - name: Apply database migrations (twice, to prove idempotency)
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run migrate && npm run migrate
 
       - name: Run tests
         working-directory: ${{ env.APP_DIR }}

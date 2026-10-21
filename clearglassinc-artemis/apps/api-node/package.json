@@ -7,11 +7,18 @@
     "dev": "node src/server.js",
     "start": "node src/server.js",
     "worker": "node src/stripe-worker.js",
-    "test": "node --test"
+    "test": "node --test",
+    "migrate": "node scripts/migrate.js",
+    "check": "find src scripts test -name '*.js' -print0 | xargs -0 -n1 node --check"
   },
   "dependencies": {
     "express": "^4.19.2",
     "ioredis": "^5.4.1",
+    "nodemailer": "^10.1.7",
+    "pg": "^8.23.1",
     "stripe": "^17.7.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -7,6 +7,9 @@ import {
   applyStripeBillingEffects,
   buildStripeBillingEffects,
 } from "./stripe-consumer.js";
+import { loadSubscriptionConfig } from "./subscriptions/config.js";
+import { createDb } from "./subscriptions/db.js";
+import { SUBSCRIPTION_EVENT_TYPES, applySubscriptionEvent } from "./subscriptions/fulfillment.js";
 
 const STREAM = "billing.subscription.events";
 const GROUP = process.env.STRIPE_CONSUMER_GROUP || "billing-consumer-v1";
@@ -76,7 +79,7 @@ async function deadLetter(redis, streamId, fields, attempts, error) {
   });
 }
 
-export async function processEntry(redis, stripe, streamId, fields) {
+export async function processEntry(redis, stripe, streamId, fields, subscriptions = null) {
   const values = fieldsToObject(fields);
   const attemptsKey = "stripe:consumer:attempts:" + streamId;
 
@@ -94,6 +97,12 @@ export async function processEntry(redis, stripe, streamId, fields) {
     const keyIsLive = /^(?:sk|rk)_live_/.test(apiKey);
     if (Boolean(event.livemode) !== keyIsLive) {
       throw new Error("Stripe event mode does not match consumer API key mode");
+    }
+
+    // Subscriber state is committed to Postgres (idempotent, transactional) before the
+    // Redis ledger write and XACK; a failure here leaves the entry pending for retry.
+    if (subscriptions && SUBSCRIPTION_EVENT_TYPES.includes(event.type)) {
+      await applySubscriptionEvent({ db: subscriptions.db, stripe, ctx: subscriptions.ctx, event });
     }
 
     // Unknown event types are marked processed and acknowledged, but never trigger
@@ -158,6 +167,14 @@ async function main() {
     });
   });
 
+  const subscriptionConfig = loadSubscriptionConfig();
+  let subscriptions = null;
+  if (subscriptionConfig.ok) {
+    subscriptions = { db: createDb(process.env.DATABASE_URL), ctx: subscriptionConfig };
+  } else {
+    console.warn("Membership entitlement updates disabled in worker", { problems: subscriptionConfig.errors });
+  }
+
   await ensureGroup(redis);
   console.log("Stripe billing consumer ready", {
     group: GROUP,
@@ -180,7 +197,7 @@ async function main() {
       const claimedEntries = Array.isArray(claimed?.[1]) ? claimed[1] : [];
       for (const [id, fields] of claimedEntries) {
         if (stopping) break;
-        await processEntry(redis, stripe, id, fields);
+        await processEntry(redis, stripe, id, fields, subscriptions);
       }
       if (stopping) break;
 
@@ -192,13 +209,14 @@ async function main() {
       );
       for (const [id, fields] of extractEntries(response)) {
         if (stopping) break;
-        await processEntry(redis, stripe, id, fields);
+        await processEntry(redis, stripe, id, fields, subscriptions);
       }
     }
   } finally {
     process.off("SIGTERM", stop);
     process.off("SIGINT", stop);
     try { await redis.quit(); } catch { redis.disconnect(); }
+    if (subscriptions) await subscriptions.db.end().catch(() => {});
   }
 }
 

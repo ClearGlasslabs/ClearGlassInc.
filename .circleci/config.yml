@@ -5,7 +5,14 @@ jobs:
     docker:
       - image: cimg/node:20.19
       - image: redis:7-alpine
+      - image: cimg/postgres:16.4
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: artemis_ci
     environment:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/artemis_ci
+      SUBSCRIPTIONS_PG_TEST_URL: postgres://postgres:postgres@localhost:5432/artemis_ci
       REDIS_URL: redis://localhost:6379/15
       STRIPE_REDIS_INTEGRATION_TESTS: "true"
       STRIPE_E2E_REDIS_URL: redis://localhost:6379/14
@@ -15,7 +22,10 @@ jobs:
       - checkout
       - run:
           name: Install API dependencies
-          command: cd clearglassinc-artemis/apps/api-node && npm install
+          command: cd clearglassinc-artemis/apps/api-node && npm ci
+      - run:
+          name: Syntax check and migrations
+          command: cd clearglassinc-artemis/apps/api-node && npm run check && npm run migrate && npm run migrate
       - run:
           name: Test Stripe webhook security and API helpers
           command: cd clearglassinc-artemis/apps/api-node && npm test

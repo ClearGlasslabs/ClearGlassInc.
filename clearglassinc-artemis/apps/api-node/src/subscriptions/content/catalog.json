@@ -1,0 +1,15 @@
+{
+  "note": "Server-side subscriber content catalogue. Items are never shipped in public assets. Add items only when real content is ready; an empty items list is rendered as 'not yet published'.",
+  "areas": [
+    { "id": "briefings", "title": "Intelligence briefings", "minPlan": "signal", "items": [] },
+    { "id": "resilience_updates", "title": "Resilience updates", "minPlan": "signal", "items": [] },
+    { "id": "research", "title": "Selected research", "minPlan": "signal", "items": [] },
+    { "id": "library", "title": "Subscriber library", "minPlan": "signal", "items": [] },
+    { "id": "governance_materials", "title": "Governance and resilience materials", "minPlan": "assurance", "items": [] },
+    { "id": "advisory_resources", "title": "Priority advisory resources", "minPlan": "assurance", "items": [] },
+    { "id": "quarterly_updates", "title": "Quarterly risk and dependency updates", "minPlan": "assurance", "items": [] },
+    { "id": "evidence_workspace", "title": "Dependency and evidence workspace", "minPlan": "northstar", "items": [] },
+    { "id": "organizational_reports", "title": "Organizational reports", "minPlan": "northstar", "items": [] },
+    { "id": "onboarding_support", "title": "Onboarding and support", "minPlan": "northstar", "items": [] }
+  ]
+}
