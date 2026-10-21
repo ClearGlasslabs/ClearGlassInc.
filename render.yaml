@@ -6,6 +6,8 @@ services:
     dockerfilePath: ./clearglassinc-artemis/apps/api-node/Dockerfile
     dockerContext: ./clearglassinc-artemis/apps/api-node
     healthCheckPath: /healthz
+    # Idempotent schema migrations run before each API deploy.
+    preDeployCommand: npm run migrate
     # GitHub Actions deploys only after its test and image-build gates pass.
     # Keeping Render auto-deploy disabled prevents an unvalidated push and the
     # deploy-hook job from racing to deploy different revisions.
@@ -40,6 +42,38 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         value: https://www.clearglassinc.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: clearglass-subscribers-db
+          property: connectionString
+      - key: APP_BASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: STRIPE_PRICE_SIGNAL_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_SIGNAL_ANNUAL
+        sync: false
+      - key: STRIPE_PRICE_ASSURANCE_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_ASSURANCE_ANNUAL
+        sync: false
+      - key: STRIPE_PRICE_NORTHSTAR_ENTERPRISE
+        sync: false
+      - key: SITE_BASE_URL
+        value: https://www.clearglassinc.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
 
   - type: worker
     name: clearglass-stripe-worker
@@ -61,8 +95,35 @@ services:
         sync: false
       - key: STRIPE_PROCESSED_EVENT_TTL_SECONDS
         value: "31536000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: clearglass-subscribers-db
+          property: connectionString
+      - key: APP_BASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: STRIPE_PRICE_SIGNAL_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_SIGNAL_ANNUAL
+        sync: false
+      - key: STRIPE_PRICE_ASSURANCE_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_ASSURANCE_ANNUAL
+        sync: false
+      - key: STRIPE_PRICE_NORTHSTAR_ENTERPRISE
+        sync: false
+      - key: SITE_BASE_URL
+        value: https://www.clearglassinc.com
 
   - type: keyvalue
     name: clearglass-artemis-redis
     plan: starter
+    ipAllowList: []
+
+databases:
+  - name: clearglass-subscribers-db
+    plan: basic-256mb
+    databaseName: clearglass_subscribers
+    user: clearglass_app
     ipAllowList: []

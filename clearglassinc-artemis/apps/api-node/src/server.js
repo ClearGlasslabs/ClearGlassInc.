@@ -5,6 +5,10 @@ import { redis } from "./redis.js";
 import { publish } from "./bus.js";
 import { createStripeWebhookHandler } from "./stripe-webhook.js";
 import { isApprovedCheckoutPrice, resolveCheckoutMode } from "./billing-config.js";
+import { loadSubscriptionConfig } from "./subscriptions/config.js";
+import { createDb } from "./subscriptions/db.js";
+import { createMailer } from "./subscriptions/mail.js";
+import { createSubscriptionRouter } from "./subscriptions/routes.js";
 import { rateLimit, requireRole, requireTrustedOrigin, securityHeaders, validEmail, validIdentifier, verifyHmac } from "./security.js";
 
 const app = express();
@@ -42,6 +46,16 @@ function safeCheckoutUrl(value, fallback) {
   return url.toString();
 }
 
+const subscriptionConfig = loadSubscriptionConfig();
+if (!subscriptionConfig.ok && process.env.NODE_ENV !== "test") {
+  // Variable names only; the membership area stays disabled (503) until fully configured.
+  console.warn("Membership subscriptions disabled", { problems: subscriptionConfig.errors });
+}
+
+function membershipPriceIds() {
+  return new Set([...subscriptionConfig.priceMap.keys()]);
+}
+
 // Stripe requires the exact raw request body for signature verification.
 app.post("/v1/webhooks/stripe", express.raw({ type: "application/json", limit: "2mb" }), createStripeWebhookHandler({
   stripeClient: stripe,
@@ -57,6 +71,10 @@ app.post("/v1/billing/checkout-sessions", requireTrustedOrigin, rateLimit({ limi
 
   if (typeof priceId !== "string" || !allowlist.has(priceId)) {
     return res.status(400).json({ error: "invalid_or_unapproved_price" });
+  }
+  if (membershipPriceIds().has(priceId)) {
+    // Membership subscriptions must start from an authenticated account so they map to a trusted user.
+    return res.status(400).json({ error: "membership_requires_account" });
   }
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 25) {
     return res.status(400).json({ error: "invalid_quantity" });
@@ -102,6 +120,14 @@ app.post("/v1/billing/checkout-sessions", requireTrustedOrigin, rateLimit({ limi
   }
 });
 
+// Subscriber accounts, membership checkout/portal and protected content (same-origin backend).
+app.use(createSubscriptionRouter({
+  db: subscriptionConfig.ok ? createDb(process.env.DATABASE_URL) : null,
+  stripe,
+  mailer: subscriptionConfig.ok ? createMailer(subscriptionConfig.smtp) : null,
+  ctx: subscriptionConfig,
+}));
+
 // Gumroad remains separate; do not treat its signature as Stripe-compatible.
 app.post("/v1/webhooks/gumroad", express.raw({ type: "application/json" }), async (req, res) => {
   const signature = req.headers["gumroad-signature"];
@@ -142,7 +168,7 @@ app.post("/v1/actions/:id/reject", requireRole("operator"), express.json({ limit
   res.json({ ok: true });
 });
 
-app.get("/healthz", (_req, res) => res.json({ ok: true, stripeConfigured: Boolean(stripe) }));
+app.get("/healthz", (_req, res) => res.json({ ok: true, stripeConfigured: Boolean(stripe), subscriptionsConfigured: subscriptionConfig.ok }));
 
 const port = process.env.PORT ?? 8080;
 if (process.env.NODE_ENV !== "test") app.listen(port, () => console.log(`api-node listening on :${port}`));

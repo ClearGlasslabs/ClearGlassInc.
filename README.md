@@ -16,6 +16,10 @@
 
 ---
 
+## Membership subscriptions
+
+Signal, Assurance and Northstar membership (Stripe subscriptions, passwordless accounts, Postgres-backed entitlements) lives in `clearglassinc-artemis/apps/api-node`; see its `STRIPE_SETUP.md` for architecture, environment, deployment and limitations. Membership is not production-verified until the launch checklist there is complete.
+
 ## Featured Products
 
 ### CLEARGLASS FACTCHECK AI
