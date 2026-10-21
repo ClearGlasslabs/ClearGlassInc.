@@ -1,4 +1,51 @@
 {
   "schema_version": 1,
-  "entries": []
+  "entries": [
+    {
+      "handled_at": "2026-10-21T09:25:10.281192+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "CAPE Prompt Optimization",
+      "run_id": 39254361565,
+      "run_attempt": 1,
+      "commit_sha": "27e159649102902bceaffac4cfcae86cdb708d9a",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39254361565",
+      "diagnostics": [
+        {
+          "job": "optimize",
+          "job_id": 118065802624,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-21T09:25:12.004293+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Deploy Artemis API",
+      "run_id": 38946853934,
+      "run_attempt": 1,
+      "commit_sha": "27e159649102902bceaffac4cfcae86cdb708d9a",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/38946853934",
+      "diagnostics": [
+        {
+          "job": "deploy",
+          "job_id": 117128262097,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    }
+  ]
 }
