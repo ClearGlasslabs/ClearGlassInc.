@@ -1,4 +1,96 @@
 {
   "schema_version": 1,
-  "entries": []
+  "entries": [
+    {
+      "handled_at": "2026-10-22T09:27:59.195064+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Security Baseline",
+      "run_id": 39613290537,
+      "run_attempt": 1,
+      "commit_sha": "7a64aeaebd595beee748207cbbc60ca6d3a8953e",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39613290537",
+      "diagnostics": [
+        {
+          "job": "scan",
+          "job_id": 119267554393,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-22T09:28:01.040970+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Deploy Artemis API",
+      "run_id": 39613290497,
+      "run_attempt": 1,
+      "commit_sha": "7a64aeaebd595beee748207cbbc60ca6d3a8953e",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_existing_issue",
+      "issue_number": null,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39613290497",
+      "diagnostics": [
+        {
+          "job": "deploy",
+          "job_id": 119267855253,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-22T09:28:02.655696+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Visual Regression",
+      "run_id": 39610311781,
+      "run_attempt": 1,
+      "commit_sha": "3dea8e34ee464245bdd16421524d9e01eb7b7f84",
+      "branch": "copilot/implement-subscription-system",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_issue",
+      "issue_number": 55,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39610311781",
+      "diagnostics": [],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-22T09:28:04.269999+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Security Baseline",
+      "run_id": 39610311935,
+      "run_attempt": 1,
+      "commit_sha": "3dea8e34ee464245bdd16421524d9e01eb7b7f84",
+      "branch": "copilot/implement-subscription-system",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_issue",
+      "issue_number": 56,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39610311935",
+      "diagnostics": [],
+      "outcome": "pending_review"
+    },
+    {
+      "handled_at": "2026-10-22T09:28:05.758584+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Repository Health",
+      "run_id": 39610312088,
+      "run_attempt": 1,
+      "commit_sha": "3dea8e34ee464245bdd16421524d9e01eb7b7f84",
+      "branch": "copilot/implement-subscription-system",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_issue",
+      "issue_number": 57,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39610312088",
+      "diagnostics": [],
+      "outcome": "pending_review"
+    }
+  ]
 }
