@@ -7,7 +7,7 @@ import {
   applyStripeBillingEffects,
   buildStripeBillingEffects,
 } from "./stripe-consumer.js";
-import { loadSubscriptionConfig } from "./subscriptions/config.js";
+import { OFFERS, loadSubscriptionConfig } from "./subscriptions/config.js";
 import { createDb } from "./subscriptions/db.js";
 import { SUBSCRIPTION_EVENT_TYPES, applySubscriptionEvent } from "./subscriptions/fulfillment.js";
 
@@ -77,6 +77,25 @@ async function deadLetter(redis, streamId, fields, attempts, error) {
     attempts,
     errorType: error instanceof Error ? error.name : "Error",
   });
+}
+
+const MEMBERSHIP_ENV_NAMES = [
+  "DATABASE_URL", "APP_BASE_URL", "SITE_BASE_URL", "AUTH_SECRET",
+  ...OFFERS.map((offer) => offer.env),
+];
+
+/**
+ * Legacy-only mode requires membership to be explicitly disabled
+ * (SUBSCRIPTIONS_ENABLED=false) or to have no membership variables at all.
+ * Any membership variable present means membership is intended, so an invalid
+ * configuration is reported as an error instead of silently degrading.
+ */
+export function resolveMembershipConfig(env = process.env) {
+  if ((env.SUBSCRIPTIONS_ENABLED ?? "").toLowerCase() === "false") return { mode: "disabled" };
+  const intended = MEMBERSHIP_ENV_NAMES.some((name) => (env[name] ?? "").trim() !== "");
+  if (!intended) return { mode: "disabled" };
+  const config = loadSubscriptionConfig(env);
+  return config.ok ? { mode: "enabled", config } : { mode: "invalid", errors: config.errors };
 }
 
 export async function processEntry(redis, stripe, streamId, fields, subscriptions = null) {
@@ -167,12 +186,17 @@ async function main() {
     });
   });
 
-  const subscriptionConfig = loadSubscriptionConfig();
+  const membership = resolveMembershipConfig();
   let subscriptions = null;
-  if (subscriptionConfig.ok) {
-    subscriptions = { db: createDb(process.env.DATABASE_URL), ctx: subscriptionConfig };
+  if (membership.mode === "enabled") {
+    subscriptions = { db: createDb(process.env.DATABASE_URL), ctx: membership.config };
+  } else if (membership.mode === "invalid") {
+    // Fail closed: consuming without Postgres persistence would ack membership events.
+    console.error("Membership configuration is invalid; refusing to consume events", { problems: membership.errors });
+    await redis.quit().catch(() => redis.disconnect());
+    throw new Error("Invalid membership configuration");
   } else {
-    console.warn("Membership entitlement updates disabled in worker", { problems: subscriptionConfig.errors });
+    console.warn("Membership entitlement updates disabled in worker (legacy billing ledger only)");
   }
 
   await ensureGroup(redis);

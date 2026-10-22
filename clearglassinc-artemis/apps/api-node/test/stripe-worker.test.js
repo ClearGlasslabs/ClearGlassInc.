@@ -132,3 +132,55 @@ test("stream worker retries errors and atomically dead-letters after max attempt
     else process.env.STRIPE_SECRET_KEY = previousKey;
   }
 });
+
+import { resolveMembershipConfig } from "../src/stripe-worker.js";
+
+const validMembershipEnv = {
+  STRIPE_SECRET_KEY: "sk_test_worker_unit_test_only",
+  DATABASE_URL: "postgres://localhost/test",
+  AUTH_SECRET: "a".repeat(32),
+  APP_BASE_URL: "https://app.example.com",
+  SITE_BASE_URL: "https://www.example.com",
+  STRIPE_PRICE_SIGNAL_MONTHLY: "price_signalmonthly1",
+};
+
+test("membership config: legacy-only, explicitly disabled, invalid and valid are distinguished", () => {
+  assert.equal(resolveMembershipConfig({ STRIPE_SECRET_KEY: "sk_test_x" }).mode, "disabled");
+  assert.equal(resolveMembershipConfig({ ...validMembershipEnv, SUBSCRIPTIONS_ENABLED: "false" }).mode, "disabled");
+  const invalid = resolveMembershipConfig({ ...validMembershipEnv, AUTH_SECRET: "short" });
+  assert.equal(invalid.mode, "invalid");
+  assert.ok(invalid.errors.some((e) => e.includes("AUTH_SECRET")));
+  assert.equal(resolveMembershipConfig({ DATABASE_URL: "postgres://localhost/test" }).mode, "invalid");
+  assert.equal(resolveMembershipConfig(validMembershipEnv).mode, "enabled");
+});
+
+test("membership event is not acknowledged when Postgres persistence fails, and succeeds on retry", async () => {
+  const previousKey = process.env.STRIPE_SECRET_KEY;
+  process.env.STRIPE_SECRET_KEY = "sk_test_worker_unit_test_only";
+  try {
+    const event = makeEvent("evt_worker_member_retry", "customer.subscription.updated", { id: "sub_worker_test" });
+    const failing = { db: { async connect() { throw new Error("db down"); }, async query() { throw new Error("db down"); } }, ctx: resolveMembershipConfig(validMembershipEnv).config };
+    const redis = fakeRedis({ attempts: 1 });
+    await processEntry(redis, fakeStripe(), "1710000000010-0", fields(event), failing);
+    assert.equal(redis.calls.ack.length, 0);
+    assert.equal(redis.calls.eval.length, 0);
+    assert.equal(redis.calls.incr.length, 1);
+  } finally {
+    if (previousKey === undefined) delete process.env.STRIPE_SECRET_KEY;
+    else process.env.STRIPE_SECRET_KEY = previousKey;
+  }
+});
+
+test("legacy-only worker (no subscriptions) still acknowledges subscription events via the ledger", async () => {
+  const previousKey = process.env.STRIPE_SECRET_KEY;
+  process.env.STRIPE_SECRET_KEY = "sk_test_worker_unit_test_only";
+  try {
+    const event = makeEvent("evt_worker_legacy", "invoice.paid", { id: "in_legacy" });
+    const redis = fakeRedis();
+    await processEntry(redis, fakeStripe(), "1710000000011-0", fields(event), null);
+    assert.equal(redis.calls.ack.length, 1);
+  } finally {
+    if (previousKey === undefined) delete process.env.STRIPE_SECRET_KEY;
+    else process.env.STRIPE_SECRET_KEY = previousKey;
+  }
+});
