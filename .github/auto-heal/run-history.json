@@ -1,4 +1,28 @@
 {
   "schema_version": 1,
-  "entries": []
+  "entries": [
+    {
+      "handled_at": "2026-10-22T11:05:53.548664+00:00",
+      "repo": "ClearGlasslabs/ClearGlassInc.",
+      "workflow": "Security Baseline",
+      "run_id": 39767953638,
+      "run_attempt": 1,
+      "commit_sha": "72cd49e9abb1550027fdf13b0dc868e9e6825146",
+      "branch": "main",
+      "classification": "UNKNOWN_FAILURE",
+      "action": "escalated_issue",
+      "issue_number": 59,
+      "run_url": "https://github.com/ClearGlasslabs/ClearGlassInc./actions/runs/39767953638",
+      "diagnostics": [
+        {
+          "job": "scan",
+          "job_id": 119787993858,
+          "conclusion": "failure",
+          "category": "UNKNOWN_FAILURE",
+          "signature": "unknown failure"
+        }
+      ],
+      "outcome": "pending_review"
+    }
+  ]
 }
