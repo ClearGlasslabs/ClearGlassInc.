@@ -181,6 +181,6 @@ There is no auth bypass. To sign in locally, configure an SMTP catcher (for exam
 
 - Not exercised against real Stripe, SMTP or a deployed host; no real E2E has been performed.
 - Subscriber content catalogue is empty by design.
-- Worker without a valid membership configuration acknowledges subscription events without writing Postgres; users recover via the refresh action.
+- Worker with membership variables set (e.g. `DATABASE_URL`, `AUTH_SECRET`, `STRIPE_PRICE_*`) but an invalid membership configuration refuses to start (fail closed) so no subscription event is acknowledged without Postgres persistence; fix the configuration and restart. Legacy-only mode applies only when no membership variables are set or `SUBSCRIPTIONS_ENABLED=false`.
 - Plan changes and cancellations are handled in the Stripe Customer Portal; multiple concurrent subscriptions are tolerated (union) but checkout blocks a second purchase while one is active.
 - Rate limiting for the legacy endpoints stays in-memory; auth/checkout/portal limits are durable in Postgres.
